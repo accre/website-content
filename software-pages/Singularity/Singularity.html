@@ -1,0 +1,221 @@
+<ul>
+<li><a href="#bootstrapping-a-singularity-image">Bootstrapping a Singularity Image</a></li>
+<li><a href="#using-docker2singularity-container">Using docker2singularity Container</a></li>
+<li><a href="#running-a-singularity-image-on-the-cluster">Running a Singularity Image on the Cluster</a></li>
+<li><a href="#building-a-singularity-image-with-gpus-enabled">Building a Singularity Image with GPUs Enabled</a></li>
+</ul>
+<p><a href="http://singularity.lbl.gov/docs-docker">Singularity</a> is a tool that allows containers (including those converted from Docker) to be run within a shared high-performance computing environment. This enables users to control the OS environment (including software libraries) that their jobs run within. For example, if a user wishes to run within an Ubuntu 16.04 environment he or she may do so despite the fact that the OS on the ACCRE cluster is a completely different Linux distribution (i.e. CentOS)! Docker containers themselves cannot be run in a shared environment like the ACCRE cluster for security reasons. However, Singularity enables a user to convert a Docker container image into a Singularity container image, which can then be run on the cluster. When running within a Singularity container, a user has the same permissions and privileges that he or she would have outside the container. A Singularity image generally must first be developed and built from a Linux machine where you have administrative access (i.e. a personal machine), although ACCRE makes standard images available to all cluster users at <code>/scratch/singularity-images</code> . If you do not have administrative access to a Linux machine, you can create a virtual Linux machine using a free tool like <a href="https://www.virtualbox.org/">VirtualBox</a> . A user’s cluster storage may be accessed from within the Singularity container, but no operations (e.g. the installation of system software) that require root/sudo privileges are allowed within the context of the Singularity container when run from the cluster. If you are interested in using Singularity but need assistance creating a custom image to run on the cluster, please schedule an appointment via our Helpdesk. Below are some basic instructions for running Singularity on the cluster. The Singularity documentation is very helpful, so we suggest you invest some time reading through it as well.</p>
+<div id="bootstrapping-a-singularity-image" class="section level1">
+<h1>Bootstrapping a Singularity Image</h1>
+<p>Once you have <a href="http://singularity.lbl.gov/install-linux">installed Singularity on your own Linux machine or virtual machine</a> , you are ready to create your image. First, create a spec file called ubuntu14-accre.def that looks like the following:</p>
+<pre class="outline"><code>BootStrap: debootstrap
+OSVersion: trusty
+MirrorURL: http://us.archive.ubuntu.com/ubuntu/
+
+%runscript
+    echo &quot;This is what happens when you run the container...&quot;
+
+    %post
+        apt-get -y install python3 python3-numpy python3-scipy
+            # install any other software you need here... 
+                mkdir /scratch /data /gpfs20 /gpfs21 /gpfs22 /gpfs23</code></pre>
+<p>In this file, we are telling Singularity we want to build an image based on the latest version of Ubuntu Trusty (version 14.04). The <strong><em>%runscript</em></strong> section is for defining commands or tasks that you want to run each time you run a container of this image. The <strong><em>%post</em></strong> section contains one-time setup steps that you want to be inside the image. This is where you install your custom software needs. In this case, we use apt-get to install Python 3 with NumPy and SciPy included. Finally, it’s important if you want to access all your cluster space from within the container to create the following directories from within the container: /scratch, /data, /gpfs20, /gpfs21, /gpfs22, and /gpfs23. If you don’t make these directories within the container (inside the <strong><em>%post</em></strong> section), you will get a warning message when you run a container of this image on the cluster. To bootstrap this image, run the following command on your Linux machine where you have admin rights:</p>
+<pre class="outline"><code># on your personal Linux machine
+sudo singularity create ubuntu14-accre.im
+sudo singularity bootstrap ubuntu14-accre.im ubuntu-accre.def</code></pre>
+<p>The first command will create an empty image with a default size (768 MiB, at the time this page was written). If you need a larger image containing lots of custom software, it is prudent to pass the --size option and specify the size in MiB (e.g. <em>sudo singularity create --size 2048 ubuntu14-accre.im</em> ). The second command creates your custom image based on the spec file you created above.</p>
+</div>
+<div id="using-docker2singularity-container" class="section level1">
+<h1>Using docker2singularity Container</h1>
+<p><a href="https://github.com/singularityware/docker2singularity">Singularityware</a> provides a Docker image expressly for converting Docker images to singularity images. This is especially useful for non-Linux users who do have Docker installed on their local machine. To convert the <code>ubuntu:14.04</code> image from DockerHub to a singularity image, simply run</p>
+<pre><code>docker run \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v path/to/my/singularity/images:/output \
+  --privileged -t --rm \
+  singularityware/docker2singularity \
+  ubuntu:14.04</code></pre>
+<p>The resulting <code>.img</code> file can now be copied to the cluster for use.</p>
+</div>
+<div id="running-a-singularity-image-on-the-cluster" class="section level1">
+<h1>Running a Singularity Image on the Cluster</h1>
+<p>Once you have successfully created your image, you can shell into it with the following command:</p>
+<pre class="outline"><code># From the cluster
+setpkgs -a singularity
+singularity shell ubuntu14-accre.im</code></pre>
+<p>If you plan on producing output that you want to persist outside the context of your container, run the following instead:</p>
+<pre class="outline"><code># From the cluster
+setpkgs -a singularity
+singularity shell --writable ubuntu14-accre.im</code></pre>
+<p>The shell subcommand is useful for interactive work. For batch processing (e.g. within a SLURM job), you should use the <em>exec</em> subcommand instead. For example:</p>
+<pre class="outline"><code>setpkgs -a singularity
+singularity exec ubuntu14-accre.im /path/to/my/script.sh</code></pre>
+<p>Where script.sh script contains the processing steps you want to run from within the batch job. You can also pass a generic Linux command to the <em>exec</em> subcommand. Pipes and redirected output are supported with the <em>exec</em> subcommand. Below is a quick demonstration showing the change in Linux distribution:</p>
+<pre class="outline"><code>[jill@vmps10 ~]$ cat /etc/*release
+CentOS release 6.8 (Final)
+LSB_VERSION=base-4.0-amd64:base-4.0-noarch:core-4.0-amd64:core-4.0-noarch
+CentOS release 6.8 (Final)
+CentOS release 6.8 (Final)</code></pre>
+<pre class="outline"><code>[jill@vmps10 ~]$ setpkgs -a singularity</code></pre>
+<pre class="outline"><code>[jill@vmps10 ~]$ singularity shell ubuntu14-accre.img 
+Singularity: Invoking an interactive shell within container...</code></pre>
+<pre class="outline"><code>Singularity.ubuntu14-accre.img&gt; $ cat /etc/*release
+DISTRIB_ID=Ubuntu
+DISTRIB_RELEASE=14.04
+DISTRIB_CODENAME=trusty
+DISTRIB_DESCRIPTION=&quot;Ubuntu 14.04 LTS&quot;
+NAME=&quot;Ubuntu&quot;
+VERSION=&quot;14.04, Trusty Tahr&quot;
+ID=ubuntu
+ID_LIKE=debian
+PRETTY_NAME=&quot;Ubuntu 14.04 LTS&quot;
+VERSION_ID=&quot;14.04&quot;
+HOME_URL=&quot;http://www.ubuntu.com/&quot;
+SUPPORT_URL=&quot;http://help.ubuntu.com/&quot;
+BUG_REPORT_URL=&quot;http://bugs.launchpad.net/ubuntu/&quot;</code></pre>
+<p>Notice that the command prompt changes when you are inside the container.</p>
+<pre class="outline"><code>Singularity.ubuntu14-accre.img&gt; $ exit
+[jill@vmps10 ~]$</code></pre>
+</div>
+<div id="building-a-singularity-image-with-gpus-enabled" class="section level1">
+<h1>Building a Singularity Image with GPUs Enabled</h1>
+<p>From <a href="https://github.com/NVIDIA/nvidia-docker/wiki/Why%20NVIDIA%20Docker">NIVDIA’s GitHub</a> :</p>
+<blockquote>
+<p>Docker containers are often used to seamlessly deploy CPU-based applications on multiple machines. With this use case, Docker containers are both hardware- agnostic and platform-agnostic. This is obviously not the case when using NVIDIA GPUs since it is using specialized hardware and it requires the installation of the NVIDIA driver. As a result, Docker does not natively support NVIDIA GPUs with containers.</p>
+</blockquote>
+<p>To get around this problem with Singularity, we need to install the necessary NVIDIA packages during bootstrap of our Singularity image, <em>taking care to match the CUDA driver version that is installed on the cluster</em> . At the time of writing, this is version 375.26. To install these drivers, we need to download the files to our local machine and run the normal installation process during the <code>setup</code> phase of our image.</p>
+<p>Let’s walk through the bootstrap file for tensorflow section by section, which has been adapted slightly from <a href="https://github.com/singularityware/singularity/blob/master/examples/contrib/ubuntu16-tensorflow-0.12.1-gpu.def">Singularity’s definition file examples</a></p>
+<p>First, we define the ubuntu:16.10 docker image as our base layer:</p>
+<pre><code>BootStrap: docker
+From: ubuntu:16.10</code></pre>
+<p>Next, we need to define <code>%setup</code> , which runs outside container, prior to bootstrapping. What’s important here is that we have the <code>NV_CUDA_FILE</code> , <code>NV_CUDNN_FILE</code> , and <code>NV_DRIVER_FILE</code> files downloaded and present in our working directory. The setup phase unpacks all the necessary files, creates symlinks for them, installs them in predictable locations, and finally sets some environment variables to be present inside the Singularity container.</p>
+<pre class="outline"><code>%setup
+    # Runs from outside the container during Bootstrap
+
+    NV_DRIVER_VERSION=375.26
+    NV_CUDA_FILE=cuda-linux64-rel-8.0.61-21551265.run
+    NV_CUDNN_FILE=cudnn-8.0-linux-x64-v6.0.tgz
+    NV_DRIVER_FILE=NVIDIA-Linux-x86_64-${NV_DRIVER_VERSION}.run
+
+    working_dir=$(pwd)
+
+    echo &quot;Unpacking NVIDIA driver into container...&quot;
+    cd ${SINGULARITY_ROOTFS}/usr/local/
+    sh ${working_dir}/${NV_DRIVER_FILE} -x
+    mv NVIDIA-Linux-x86_64-${NV_DRIVER_VERSION} NVIDIA-Linux-x86_64
+    cd NVIDIA-Linux-x86_64/
+    for n in *.$NV_DRIVER_VERSION; do
+        ln -v -s $n ${n%.$NV_DRIVER_VERSION}
+    done
+    ln -v -s libnvidia-ml.so.$NV_DRIVER_VERSION libnvidia-ml.so.1
+    ln -v -s libcuda.so.$NV_DRIVER_VERSION libcuda.so.1
+    cd $working_dir
+
+    echo &quot;Running NVIDIA CUDA installer...&quot;
+    sh $NV_CUDA_FILE -noprompt -nosymlink -prefix=${SINGULARITY_ROOTFS}/usr/local/cuda-8.0
+    ln -r -s ${SINGULARITY_ROOTFS}/usr/local/cuda-8.0 ${SINGULARITY_ROOTFS}/usr/local/cuda
+
+    echo &quot;Unpacking cuDNN...&quot;
+    tar xvf $NV_CUDNN_FILE -C ${SINGULARITY_ROOTFS}/usr/local/
+
+    ln -s /usr/local/libnvidia-ml 
+    ln -s /usr/lib64/libcuda.so.1 ${SINGULARITY_ROOTFS}/usr/lib64/.
+
+    echo &quot;Adding NVIDIA PATHs to /environment...&quot;
+    NV_DRIVER_PATH=/usr/local/NVIDIA-Linux-x86_64
+    echo &quot;
+
+LD_LIBRARY_PATH=/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64:$NV_DRIVER_PATH:\$LD_LIBRARY_PATH
+PATH=$NV_DRIVER_PATH:\$PATH
+export PATH LD_LIBRARY_PATH
+
+&quot; &gt;&gt; $SINGULARITY_ROOTFS/environment</code></pre>
+<p>The <code>%post</code> phase runs inside the Singularity container, as before:</p>
+<pre class="outline"><code>%post
+    # Runs within the container during Bootstrap
+
+    # Set up some required environment defaults
+    export LC_ALL=C
+    export PATH=/bin:/sbin:/usr/bin:/usr/sbin:$PATH
+
+    # Install the necessary packages (from repo)
+    apt-get update &amp;&amp; apt-get install -y --no-install-recommends \
+        build-essential \
+        curl \
+        git \
+    libcupti-dev \
+        libcurl4-openssl-dev \
+        libfreetype6-dev \
+        libpng-dev \
+        libzmq3-dev \
+        python-pip \
+        pkg-config \
+        python-dev \
+        rsync \
+        software-properties-common \
+        unzip \
+        zip \
+        zlib1g-dev
+
+    apt-get clean
+
+    # Update to the latest pip (newer than repo)
+    pip install --no-cache-dir --upgrade pip
+
+    # Added according to this issue https://github.com/pypa/pip/issues/1064
+    pip install -U setuptools
+
+    # Install other commonly-needed packages
+    pip install --no-cache-dir --upgrade \
+        future \
+        matplotlib \
+        scipy \
+        sklearn \
+        jupyter
+
+    # TensorFlow package versions as listed here:
+    #   https://www.tensorflow.org/get_started/os_setup#test_the_tensorflow_installation
+    #
+    # Ubuntu/Linux 64-bit, GPU enabled, Python 2.7 (Requires CUDA toolkit 8.0 and CuDNN v5)
+    pip install --no-cache-dir --ignore-installed --upgrade tensorflow-gpu </code></pre>
+<p>Here, we install lots of low, level tools, Python, PIP, and some specific Python packages, including Jupyter which allows us to run notebooks from inside the container (see below). Finally, tensorflow can be installed with a single pip command.</p>
+<p>The runscript for this singularity image is:</p>
+<pre class="outline"><code>%runscript
+    # When executed, the container will run a Jupyter notebook on the specified port 
+
+    # Check the current environment
+    chk_nvidia_uvm=$(grep nvidia_uvm /proc/modules)
+    if [ -z &quot;$chk_nvidia_uvm&quot; ]; then
+        echo &quot;Problem detected on the host: the Linux kernel module nvidia_uvm is not loaded&quot;
+        exit 1
+    fi
+
+    if [ &quot;$#&quot; -ne 1 ]; then
+        echo &quot;Must pass port number&quot;
+        exit 1
+    fi
+
+    exec jupyter notebook --ip=0.0.0.0 --port=&quot;$@&quot;</code></pre>
+<p>Thus, the command to launch the singularity container is:</p>
+<pre class="outline"><code>singularity run singularity-images/tensorflow-1.0-jupyter-gpu.img 9999</code></pre>
+<p>Putting it all together, these commands can be rolled into a SLURM batch script:</p>
+<pre class="outline"><code>#!/bin/bash
+
+#SBATCH --mem=10G  # Total memory (RAM) required, per node
+#SBATCH --time=0:03:00  # Wall Clock time (dd-hh:mm:ss) [max of 14 days]
+#SBATCH --account=accre_gpu
+#SBATCH --partition=maxwell     # low-latency RoCE network and 4 Titan X GPUs per node
+#SBATCH --gres=gpu:2            # GPUs allocated
+
+PORT_NUM=8888
+
+echo &quot;This job will run a Jupyter notebook from within a Singularity image&quot;
+echo &quot;To view the notebook, create a new ssh connection to accre with port forwarding:&quot;
+echo &quot;ssh -N -L 9999:$hostname:$PORTNUM $USER@login.accre.vanderbilt.edu&quot;
+
+setpkgs -a singularity
+
+singularity run /scratch/singularity-images/tensorflow-1.0-jupyter-gpu.img $PORT_NUM</code></pre>
+<p>To use the Jupyter notebook on your local machine, from a separate terminal window, create a secure shell connection to accre with port forwarding:</p>
+<pre class="outline"><code>ssh -N -L 8888:gpu00XX:9999. </code></pre>
+<p>This will forward the port 9999 on <code>gpu00XX</code> to your localhost, so you can then open a web browser on your client machine to <code>localhost:9999</code> . Before proceeding, you may have to enter the token for the jupyter notebook, which can be found in the standard output of the <code>jupyter notebook</code> command.</p>
+</div>

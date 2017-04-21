@@ -152,6 +152,9 @@ Started](/?page_id=303 "Getting Started")):
 -   [How do I check which python packages are
     installed?](#python_check_packages)
 
+-   [How do I install a python module without root 
+    privilege?](#pip_sudo_install)
+
 -   [How do I install a python package from source
     code?](#python_module_install)
 
@@ -1397,6 +1400,39 @@ python_pkginfo.py --ncol 3 --type both
 would list all
 installed packages and modules in three columns of output. By default,
 installed packages are output in two columns. 
+
+[Top of Page](#top)
+
+---
+
+###### Software: How do I install a python module without root privilege? {#pip_sudo_install}
+
+It's normally not necessary to use `sudo` to install python modules and 
+packages. 
+When trying to install a python module with `pip`, if you see an error 
+similar to:
+
+```{.outline}
+error: could not create
+'/usr/local/python2/2.7.4/x86_64/gcc46/nonet/lib/python2.7/site-packages/doc':
+Permission denied
+```
+
+you should provide the `--user` option to `pip`, e.g.:
+
+```{.outline}
+pip install word-count --user
+```
+
+For more information, see [our python software pages][python].
+
+However, we do encourage users to create virtual environments, either through
+[`virtualenv`][virturalenv] or [`anaconda`][anaconda],
+to avoid dependency conflicts between packages.
+
+[python]: http://www.accre.vanderbilt.edu/?page_id=2702#installing-new-packages
+[virturalenv]: https://virtualenv.pypa.io/en/stable/ 
+[anaconda]: http://www.accre.vanderbilt.edu/?page_id=2702#managing-packages-with-anaconda
 
 [Top of Page](#top)
 

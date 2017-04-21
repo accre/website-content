@@ -152,6 +152,9 @@ Started](/?page_id=303 "Getting Started")):
 -   [How do I check which python packages are
     installed?](#python_check_packages)
 
+-   [How do I install a python module without root 
+    privilege?](#pip_sudo_install)
+
 -   [How do I install a python package from source
     code?](#python_module_install)
 

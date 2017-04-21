@@ -86,6 +86,7 @@
 <li><p><a href="#R_install_bioconductor">How do I install and load an R package from Bioconductor?</a></p></li>
 <li><p><a href="#perl_module_install">How do I install a perl module without root privilege?</a></p></li>
 <li><p><a href="#python_check_packages">How do I check which python packages are installed?</a></p></li>
+<li><p><a href="#pip_sudo_install">How do I install a python module without root privilege?</a></p></li>
 <li><p><a href="#python_module_install">How do I install a python package from source code?</a></p></li>
 <li><p><a href="#matlab_sas_license">How do I run Matlab/SAS job on the cluster?</a></p></li>
 </ul>
@@ -544,6 +545,19 @@ $ mkdir lib </code></pre>
 <p>This will run a script that lists the python packages in your current environment, including any you have installed locally (see next section). <code>python_pkginfo.py</code> also accepts two optional arguments, <code>--ncol</code> (for adjusting the number of columns in the output) and <code>--type</code> (this controls whether installed packages, modules, or both are printed). For example:</p>
 <pre class="outline"><code>python_pkginfo.py --ncol 3 --type both </code></pre>
 <p>would list all installed packages and modules in three columns of output. By default, installed packages are output in two columns.</p>
+<p><a href="#top">Top of Page</a></p>
+<hr />
+</div>
+<div id="pip_sudo_install" class="section level6">
+<h6>Software: How do I install a python module without root privilege?</h6>
+<p>It's normally not necessary to use <code>sudo</code> to install python modules and packages. When trying to install a python module with <code>pip</code>, if you see an error similar to:</p>
+<pre class="outline"><code>error: could not create
+&#39;/usr/local/python2/2.7.4/x86_64/gcc46/nonet/lib/python2.7/site-packages/doc&#39;:
+Permission denied</code></pre>
+<p>you should provide the <code>--user</code> option to <code>pip</code>, e.g.:</p>
+<pre class="outline"><code>pip install word-count --user</code></pre>
+<p>For more information, see <a href="http://www.accre.vanderbilt.edu/?page_id=2702#installing-new-packages">our python software pages</a>.</p>
+<p>However, we do encourage users to create virtual environments, either through <a href="https://virtualenv.pypa.io/en/stable/"><code>virtualenv</code></a> or <a href="http://www.accre.vanderbilt.edu/?page_id=2702#managing-packages-with-anaconda"><code>anaconda</code></a>, to avoid dependency conflicts between packages.</p>
 <p><a href="#top">Top of Page</a></p>
 <hr />
 </div>
