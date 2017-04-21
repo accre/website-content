@@ -1,0 +1,201 @@
+<ol style="list-style-type: decimal">
+<li><a href="#ruby-versions" style="font-size: medium;">Ruby Versions</a></li>
+<li><a href="#install-and-manage-ruby-gems-aka-packages" style="font-size: medium;">Install and Manage Ruby Gems (aka packages)</a></li>
+<li><a href="#example-script" style="font-size: medium;">Example Script</a></li>
+<li><a href="#contributing-new-examples" style="font-size: medium;">Contributing New Examples</a></li>
+</ol>
+<p>Ruby is a dynamic, fully object oriented, open source programming language with a focus on simplicity and productivity. It has an elegant syntax that is natural to read and easy to write.</p>
+<div id="ruby-versions" class="section level1">
+<h1><span class="header-section-number">1</span> Ruby Versions</h1>
+<p>ACCRE supports several version of ruby on the cluster. The oldest version 1.8.7 will be retired in 2015 because it is not no longer supported with security updates or development. To see the versions you need only do:</p>
+<pre class="outline"><code>pkginfo | grep &quot;^\s*ruby&quot;
+                          ruby   Ruby 2.1.1
+                       ruby1.8   Ruby 1.8.7
+                     ruby1.9.3   Ruby 1.9.3
+                     ruby2.0.0   Ruby 2.0.0
+                     ruby2.2.0   Ruby 2.2.0
+               ruby2.2.0_intel   Ruby 2.2.0</code></pre>
+<p>To select the version you want, say ruby version 2.0.0, you need only do:</p>
+<pre class="outline"><code>setpkgs -a ruby2.0.0</code></pre>
+<p>You will note that there is a version of ruby compiled with the new Intel compiler. This is the version we encourage people to use because the binary takes advantage of the features of the Intel chip set.</p>
+</div>
+<div id="install-and-manage-ruby-gems-aka-packages" class="section level1">
+<h1><span class="header-section-number">2</span> Install and Manage Ruby Gems (aka packages)</h1>
+<p>Ruby gems are easy to add to a local repository in your home directory, just remember to use the <code>--user-install</code> option when you download the gem. For example:</p>
+<pre class="outline"><code>gem install text-table --no-rdoc --no-ri --user-install</code></pre>
+<p>will download and install the gem into your home directory in a a directory named .gem, and if that directory does not exist, gem will create it for you. This example shows how to avoid installing the documentation for the gem.</p>
+<p>To see the list of gems currently installed both system-wide and in your local repository do:</p>
+<pre class="outline"><code>gem list
+
+*** LOCAL GEMS ***
+
+bigdecimal (1.2.6)
+io-console (0.4.3)
+json (1.8.1)
+minitest (5.4.3)
+power_assert (0.2.2)
+psych (2.0.8)
+rake (10.4.2)
+rdoc (4.2.0)
+test-unit (3.0.8)
+text-table (1.2.4)</code></pre>
+<p>It is important to remember that gems are sensitive to the version of ruby you are using. If you are using 2.0.0, for example, and download and install a gem, that gem will <strong>not</strong> be available if you switch to a different version.</p>
+</div>
+<div id="example-script" class="section level1">
+<h1><span class="header-section-number">3</span> Example Script</h1>
+<p>Here is a sample script, which I wrote to make the output of sacct more managble. To see the output from <code>sacct</code> do this with a jobid (note that the command is a single long line):</p>
+<pre class="outline"><code>sacct --format=user,jobid,account,jobname,
+state,exitcode,timelimit,reqmem,maxrss,reqcpus,ncpus,nnodes,nodelist,
+submit,start,end --jobs 2376732
+User        JobID    Account    JobName      State ExitCode  Tim     
+elimit     ReqMem     MaxRSS  ReqCPUS      NCPUS   NNodes        Node
+List              Submit               Start                 End 
+--------- ------------ ---------- ---------- ---------- -------- ----
+------ ---------- ---------- -------- ---------- -------- -----------
+---- ------------------- ------------------- -------------------
+msrc 2376732       mass_spec PROD15982+  COMPLETED      0:0   02
+:00:00     1000Mn                   1          1        1          vm
+p515 2015-06-08T14:52:26 2015-06-08T14:52:27 2015-06-08T14:53:48 
+          2376732.bat+  mass_spec      batch  COMPLETED      0:0 
+           1000Mn     13532K        1          1        1          vm
+p515 2015-06-08T14:52:27 2015-06-08T14:52:27 2015-06-08T14:53:48</code></pre>
+<p>Now, login to the cluster and do this instead:</p>
+<pre class="outline"><code>rtracejob 2376732
++------------------+--------------------------+
+|    User: msrc    |      JobID: 2376732      |
++------------------+--------------------------+
+| Account          | mass_spec                |
+| Job Name         | PROD1598283              |
+| State            | Completed                |
+| Exit Code        | 0:0                      |
+| Wall Time        | 02:00:00                 |
+| Requested Memory | 1000Mn                   |
+| Memory Used      | 13532K                   |
+| CPUs Requested   | 1                        |
+| CPUs Used        | 1                        |
+| Nodes            | 1                        |
+| Node List        | vmp515                   |
+| Wait Time        | 0.0 minutes              |
+| Run Time         | 1.4                      |
+| Submit Time      | Mon Jun  8 14:52:26 2015 |
+| Start Time       | Mon Jun  8 14:52:27 2015 |
+| End Time         | Mon Jun  8 14:53:48 2015 |
++------------------+--------------------------+
+| Today&#39;s Date     | Wed Jun 10 12:41:48 2015 |
++------------------+--------------------------+</code></pre>
+<p>Nice difference! You can use ruby to massage the output from many of the slurm commands that are used to query information about jobs. Here is the script (note the &quot;<code>\</code>&quot; symbols denote line continuation)  to which you are more than welcome (if you copy this for your own use, you will need to do a <strong><code>setpkgs -a ruby2.2.0_intel</code></strong> first):</p>
+<pre class="outline"><code>#!/usr/local/ruby/2.2.0/x86_64/intel/nonet/bin/ruby
+
+####################################################
+#    _   ___ ___ ___ ___                           #
+#   /_\ / __/ __| _ \ __|                          #
+#  / _ \ (_| (__|   / _|                           #
+# /_/ \_\___\___|_|_\___|                          #
+#                                                  #
+# - Charles Johnson &lt;john276@accre.vanderbilt.edu&gt; #
+# - June, 2015                                     #
+#                                                  #
+# Do a setpkgs -a ruby2.2.0_intel to use this      #
+####################################################
+
+require &#39;text-table&#39;
+require &#39;time&#39;
+
+# Do some minimal error checking
+if ARGV.size != 1
+  puts &quot;Usage: rtracejob &quot;
+  exit(1)
+end
+
+job = ARGV[0].to_i
+
+if job &lt; 1
+  puts &quot;Need a valid jobid.&quot;
+  puts &quot;Usage: rtracejob &quot;
+  exit(1)
+end
+
+# Query slurm for data about the job.
+sacct_output  = `sacct --format=user,jobid,account,jobname,state,exitcode, \
+timelimit,reqmem,maxrss,reqcpus,ncpus,nnodes,nodelist,submit,start,end \
+--jobs &quot;#{job}&quot; --parsable`.chomp()
+
+# if sacct returns a &quot;.batch&quot; in its output, we can get the maxrss
+if sacct_output =~ /\.batch/
+  sacct_output = \
+       sacct_output.sub(&quot;\n|&quot;,&quot;&quot;).sub(&quot;\n&quot;,&quot;&quot;).sub(&quot;|End|&quot;,&quot;|End|\n&quot;)
+  sacct_output = sacct_output.split(&quot;\n&quot;)
+  keys   = sacct_output[0].split(&quot;|&quot;)
+  values = sacct_output[1].split(&quot;|&quot;)
+  values[8] = values[23]
+else
+  #split the return string to build a hash
+  sacct_output = sacct_output.split(&quot;\n&quot;)
+  keys   = sacct_output[0].split(&quot;|&quot;)
+  values = sacct_output[1].split(&quot;|&quot;)
+end
+
+table_data = Hash.new()
+(0..15).each { |i| table_data[keys[i]] = values[i] }
+
+#we always have a submit time
+submit_time =  Time.parse(table_data[&quot;Submit&quot;])
+
+# create a start time if there is one
+start_time = (table_data[&quot;Start&quot;] == &quot;&quot; || table_data[&quot;Start&quot;] == \
+               &quot;Unknown&quot;) ? &quot;&quot; : Time.parse(table_data[&quot;Start&quot;])
+
+# create an end time if there is one
+end_time = (table_data[&quot;End&quot;] == &quot;&quot; || table_data[&quot;End&quot;] == \
+               &quot;Unknown&quot;) ? &quot;&quot; : Time.parse(table_data[&quot;End&quot;])
+
+# create a run time if we have both start and end
+run_time = (start_time != &quot;&quot; &amp;&amp; end_time != &quot;&quot;) == true ? \
+           ((end_time - start_time) / 60.0).round(1) : &quot;&quot;
+
+#create the wait time
+wait_time = (start_time != &quot;&quot;) ? ((start_time - \
+             submit_time) / 60.0).round(1) : ((Time.now - \
+             submit_time) / 60.0).round(1)
+
+# reformat slurm data for human consumption
+table_data[&quot;ExitCode&quot;] = &quot;&quot; if table_data[&quot;State&quot;] == &quot;RUNNING&quot;
+table_data[&quot;MaxRSS&quot;]   = &quot;Unknown&quot; if table_data[&quot;MaxRSS&quot;] == &quot;&quot;
+table_data[&quot;Submit&quot;]   = Time.parse(table_data[&quot;Submit&quot;]).asctime()
+table_data[&quot;Start&quot;]    = start_time == &quot;&quot; ? &quot;Not yet known&quot; : \
+           Time.parse(table_data[&quot;Start&quot;]).asctime()
+table_data[&quot;End&quot;]      = end_time == &quot;&quot; ? &quot;Not yet known&quot; : \
+           Time.parse(table_data[&quot;End&quot;]).asctime()
+
+# create the table and add our data
+table = Text::Table.new()
+
+table.head = [&quot;User: &quot; + table_data[&quot;User&quot;], &quot;JobID: &quot; + \
+                  table_data[&quot;JobID&quot;]]
+
+table.rows &lt;&lt; [[&quot;Account &quot;,         table_data[&quot;Account&quot;]]]
+table.rows &lt;&lt; [[&quot;Job Name&quot;,         table_data[&quot;JobName&quot;]]]
+table.rows &lt;&lt; [[&quot;State&quot;,            table_data[&quot;State&quot;].capitalize()]]
+table.rows &lt;&lt; [[&quot;Exit Code&quot;,        table_data[&quot;ExitCode&quot;]]]
+table.rows &lt;&lt; [[&quot;Wall Time&quot;,        table_data[&quot;Timelimit&quot;]]]
+table.rows &lt;&lt; [[&quot;Requested Memory&quot;, table_data[&quot;ReqMem&quot;]]]
+table.rows &lt;&lt; [[&quot;Memory Used&quot;,      table_data[&quot;MaxRSS&quot;]]]
+table.rows &lt;&lt; [[&quot;CPUs Requested&quot;,   table_data[&quot;ReqCPUS&quot;]]]
+table.rows &lt;&lt; [[&quot;CPUs Used&quot;,        table_data[&quot;NCPUS&quot;]]]
+table.rows &lt;&lt; [[&quot;Nodes&quot;,            table_data[&quot;NNodes&quot;]]]
+table.rows &lt;&lt; [[&quot;Node List&quot;,        table_data[&quot;NodeList&quot;]]]
+table.rows &lt;&lt; [[&quot;Wait Time&quot;,        wait_time.to_s + &quot; minutes&quot;]]
+table.rows &lt;&lt; [[&quot;Run Time&quot;,         run_time]]
+table.rows &lt;&lt; [[&quot;Submit Time&quot;,      table_data[&quot;Submit&quot;]]]
+table.rows &lt;&lt; [[&quot;Start Time&quot;,       table_data[&quot;Start&quot;]]]
+table.rows &lt;&lt; [[&quot;End Time&quot;,         table_data[&quot;End&quot;]]]
+
+table.foot = [&quot;Today&#39;s Date&quot;, Time.now.asctime()]
+
+# output the table
+puts table</code></pre>
+</div>
+<div id="contributing-new-examples" class="section level1">
+<h1><span class="header-section-number">4</span> Contributing New Examples</h1>
+<p>In order to foster collaboration and develop local Ruby expertise at Vanderbilt, we encourage users to submit examples of their own to <a href="https://github.com/accre/Ruby">ACCRE’s Ruby Github repository</a> . Instructions for doing this can be found on <a href="http://www.accre.vanderbilt.edu/?page_id=2735">this page</a> .</p>
+</div>

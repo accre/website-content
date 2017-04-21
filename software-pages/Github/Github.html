@@ -1,0 +1,95 @@
+<ol style="list-style-type: decimal">
+<li><a href="#set-your-global-git-configuration" style="font-size: medium;">Set Your Global Git Configuration</a></li>
+<li><a href="#fork-accre-repository" style="font-size: medium;">Fork ACCRE Repository</a></li>
+<li><a href="#clone-fork-to-the-accre-cluster-or-your-personal-machine" style="font-size: medium;">Clone Fork to the ACCRE Cluster (or Your Personal Machine)</a></li>
+<li><a href="#submit-pull-request" style="font-size: medium;">Submit Pull Request</a></li>
+<li><a href="#need-help" style="font-size: medium;">Need Help?</a></li>
+</ol>
+<p>Contributing code to <a href="https://github.com/accre">ACCRE’s Github page</a> is a great way to foster collaboration in HPC research at Vanderbilt. Below are instructions for how to go about contributing code to any of <a href="https://github.com/accre?tab=repositories">ACCRE’s Github repositories</a> . Before getting started, you will need to <a href="https://github.com/join">create your own Github account</a> (if you don’t have one already). While you’re at it, follow <a href="https://github.com/accre">ACCRE’s Github account</a> so you can see when new content has been added. Also feel free to star any ACCRE repositories you find to be especially helpful!</p>
+<div id="set-your-global-git-configuration" class="section level1">
+<h1><span class="header-section-number">1</span> Set Your Global Git Configuration</h1>
+<p>Once you have logged into the cluster, you will want to use the most recent version of git available through <code>setpkgs</code> :</p>
+<pre class="outline"><code>[bob@vmps13 ~]$ setpkgs -a git
+[bob@vmps13 ~]$ git --version
+git version 1.8.3-rc3</code></pre>
+<p>You may want to stick the <code>setpkgs</code> command in your <code>.bashrc</code> so that you always pick up this version of git and not the system version (which is an older version). Next, set up your git global config with your Github user name and the email address linked to your Github account. For example:</p>
+<pre class="outline"><code>[bob@vmps13 ~]$ git config --global --add user.name &quot;bob&quot;
+[bob@vmps13 ~]$ git config --global --add user.email &quot;bob@vanderbilt.edu&quot;
+[bob@vmps13 ~]$ git config --global --list
+user.name=bob
+user.email=bob@vanderbilt.edu</code></pre>
+<p>This information will be stored in a file in your home directory (<code>~/.gitconfig</code>). Now your Github account will be listed as a contributor if you contribute code to an ACCRE git repository!</p>
+</div>
+<div id="fork-accre-repository" class="section level1">
+<h1><span class="header-section-number">2</span> Fork ACCRE Repository</h1>
+<p>The next step is to download a copy of the appropriate ACCRE repository to your own Github account. This is called <em>forking</em> a repository. As an example, let’s say you want to contribute a Python script to ACCRE’s Python repository. To do this, first make sure you are signed into your Github account, then navigate to the <a href="https://github.com/accre/Python">Python repository</a> at ACCRE’s Github page. Note that on ACCRE’s homepage you will not see all repositories. You must click <code>Repositories</code> at the top of the page to get a full list.</p>
+<p>At the top right of the page you will see a Fork button; simply click this button, and the repository will be forked to your Github profile. Navigate to your Github profile to convince yourself that you’ve successfully forked the repository.</p>
+</div>
+<div id="clone-fork-to-the-accre-cluster-or-your-personal-machine" class="section level1">
+<h1><span class="header-section-number">3</span> Clone Fork to the ACCRE Cluster (or Your Personal Machine)</h1>
+<p>Now you need to download a copy of the repository to your ACCRE home directory or personal machine so you can edit your local copy of the repository. This is called <strong>cloning</strong> . When you click on your forked version of the repository in Github, you should see a box with <code>HTTPS clone URL</code> listed above the box. This box contains the URL of the repository, which you should copy and paste into your command line after typing <code>git clone</code> . For example:</p>
+<pre class="outline"><code>[bob@vmps13 ~]$ git clone https://github.com/bob/Python.git
+Cloning into &#39;Python&#39;...
+remote: Counting objects: 21, done.
+remote: Total 21 (delta 0), reused 0 (delta 0), pack-reused 21
+Unpacking objects: 100% (21/21), done.
+[bob@vmps13 ~]$ ls -p | grep Python
+Python/</code></pre>
+<p>Notice that user bob now has a new directory called <code>Python</code> , which is his local copy of the repository that he can edit without affecting the remote version of the repository stored at ACCRE’s Github page.</p>
+<p>Now you are ready to make changes to the repository. We suggest creating a new subdirectory in the top-level directory of the repository, with the name of the subdirectory indicating the type of code/example you are contributing. For example, if user bob has an example of doing clustering analysis within Python, he might name the subdirectory <code>clustering</code>. In general, user bob would then add files (Python script(s), SLURM script(s), any other subdirectories or miscellaneous files) inside of this subdirectory. You may also choose to create a <code>README</code> file in the new directory you’ve created, which will be displayed in Github when a user clicks on the example.  We ask that you limit the total size of each example to &lt; 100 MB.</p>
+<p>Once you have added all your files and have thoroughly tested them to ensure their proper function (and left helpful documentation in the source code!), you are ready to commit these changes to your local repository. Below is an example of how to commit changes. This sequence of commands should work in most cases (note you must be inside the repository in order to execute these commands):</p>
+<pre class="outline"><code>[bob@vmps13 Python]$ ls -p
+clustering/  matplotlib/  README.md  vectorization/
+[bob@vmps13 Python]$ ls -p clustering/
+clustering.py  clustering.slurm  README
+[bob@vmps13 Python]$ git status
+# On branch master
+# Untracked files:
+#   (use &quot;git add ...&quot; to include in what will be committed)
+#
+#   clustering/
+nothing added to commit but untracked files present (use &quot;git add&quot; to track)
+[bob@vmps13 Python]$ git add -A
+[bob@vmps13 Python]$ git status
+# On branch master
+# Changes to be committed:
+#   (use &quot;git reset HEAD ...&quot; to unstage)
+#
+#   new file:   clustering/README
+#   new file:   clustering/clustering.py
+#   new file:   clustering/clustering.slurm
+#
+[bob@vmps13 Python]$ git commit -m &quot;Adding clustering example&quot;
+[master a5249f0] Adding clustering example
+ 3 files changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 clustering/README
+ create mode 100644 clustering/clustering.py
+ create mode 100644 clustering/clustering.slurm
+[bob@vmps13 Python]$ git status
+# On branch master
+# Your branch is ahead of &#39;origin/master&#39; by 1 commit.
+#   (use &quot;git push&quot; to publish your local commits)
+#
+nothing to commit, working directory clean</code></pre>
+<p>Three important git commands are used here. <code>git status</code> gives you details about files that have and have not been committed to your local repository, <code>git add -A</code> will add files and any edits you’ve made to the local repository, and <code>git commit</code> will actually apply these changes to your local repository to make them permanent (the -m option allows you to add a message to your commit, which should be a brief description of the changes you’ve made to the repository).</p>
+<p>Once you have committed all your changes, the last step is to push these changes to Github using <code>git push</code> :</p>
+<pre class="outline"><code>[bob@vmps13 Python]$ git push
+Username for &#39;https://github.com&#39;: bob
+Password for &#39;https://bob@github.com&#39;: 
+Counting objects: 7, done.
+Delta compression using up to 16 threads.
+Compressing objects: 100% (4/4), done.
+Writing objects: 100% (4/4), 454 bytes | 0 bytes/s, done.
+Total 4 (delta 2), reused 0 (delta 0)
+To https://github.com/bob/Python.git
+   e5045fe..3fe0fa4  master -&gt; master</code></pre>
+<p>Note that you will be prompted for your username and password. This is your Github username and password, NOT your ACCRE username and password. After you have completed this last step, you should now see these changes reflected when you view your fork (but not ACCRE’s version of the repository) of the repository in Github.</p>
+</div>
+<div id="submit-pull-request" class="section level1">
+<h1><span class="header-section-number">4</span> Submit Pull Request</h1>
+<p>From Github, navigate to your fork of the repository, and click on <code>Pull Request</code>. You will be taken to a few screens where you can leave comments about the code you are contributing. Feel free to leave comments and confirm the pull request until it’s clear that it has been submitted to the ACCRE admins for review. At this point, ACCRE admins will review the code you have contributed and have the option to accept or reject the changes. If all looks well, we will accept the changes and they will be included in the repository for other users to see and/or borrow!</p>
+</div>
+<div id="need-help" class="section level1">
+<h1><span class="header-section-number">5</span> Need Help?</h1>
+<p><a href="http://www.accre.vanderbilt.edu/?page_id=369">Open a helpdesk ticket</a>. We’re happy to help!</p>
+</div>

@@ -1,3 +1,12 @@
+1.   [Bootstrapping a Singularity
+    Image](#bootstrapping-a-singularity-image){style="font-size: medium;"}
+1.   [Using docker2singularity
+    Container](#using-docker2singularity-container){style="font-size: medium;"}
+1.   [Running a Singularity Image on the
+    Cluster](#running-a-singularity-image-on-the-cluster){style="font-size: medium;"}
+1.   [Building a Singularity Image with GPUs
+    Enabled](#building-a-singularity-image-with-gpus-enabled){style="font-size: medium;"}
+
 [Singularity](http://singularity.lbl.gov/docs-docker) is a tool that
 allows containers (including those converted from Docker) to be run
 within a shared high-performance computing environment. This enables

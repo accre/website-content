@@ -1,15 +1,15 @@
 <ol style="list-style-type: decimal">
-<li><a href="#versions-of-python-on-the-accre-cluster">Python Versions</a></li>
-<li><a href="#checking-installed-packages">Python Packages</a></li>
-<li><a href="#installing-new-packages">Installing</a></li>
-<li><a href="#example-scripts">Example Scripts</a></li>
-<li><a href="#managing-packages-with-anaconda">Managing Packages with Anaconda</a></li>
-<li><a href="#jupyter-ipython-notebooks">Jupyter (iPython) Notebooks</a></li>
-<li><a href="#contributing-new-examples">Contributing New Examples</a></li>
+<li><a href="#versions-of-python-on-the-accre-cluster" style="font-size: medium;">Versions of Python on the ACCRE Cluster</a></li>
+<li><a href="#checking-installed-packages" style="font-size: medium;">Checking Installed Packages</a></li>
+<li><a href="#installing-new-packages" style="font-size: medium;">Installing New Packages</a></li>
+<li><a href="#example-scripts" style="font-size: medium;">Example Scripts</a></li>
+<li><a href="#managing-packages-with-anaconda" style="font-size: medium;">Managing Packages with Anaconda</a></li>
+<li><a href="#jupyter-ipython-notebooks" style="font-size: medium;">Jupyter (iPython) Notebooks</a></li>
+<li><a href="#contributing-new-examples" style="font-size: medium;">Contributing New Examples</a></li>
 </ol>
 <p>Python is an interpreted programming language that has become increasingly popular in high-performance computing environments because it's available with an assortment of numerical and scientific computing libraries (NumPy, SciPy, Pandas, etc.), relatively easy to learn, open source, and free.</p>
-<div id="versions-of-python-on-the-accre-cluster" class="section level2">
-<h2>Versions of Python on the ACCRE Cluster</h2>
+<div id="versions-of-python-on-the-accre-cluster" class="section level1">
+<h1><span class="header-section-number">1</span> Versions of Python on the ACCRE Cluster</h1>
 <p>When a user initially logs into the cluster, the system version (Python that comes pre-installed on the operating system) is 2.7.6 and is located in <code>/usr/local/bin</code>:</p>
 <pre class="outline"><code>[bob@vmps14 ~]$ which python
 /usr/local/bin/python
@@ -37,8 +37,8 @@ Python 3.4.2
                      anaconda3   Anaconda3 Python (3.5.1)</code></pre>
 <p>Anaconda simplifies managing dependencies and will be discussed in Section 4.</p>
 </div>
-<div id="checking-installed-packages" class="section level2">
-<h2>Checking Installed Packages</h2>
+<div id="checking-installed-packages" class="section level1">
+<h1><span class="header-section-number">2</span> Checking Installed Packages</h1>
 <p>Each different version of Python has its own packages installed into it, so as you are switching between different versions it is prudent to check the packages that are available. One way to do this is using <code>pip</code>:</p>
 <pre class="outline"><code>[jill@vmps14 ~]$ setpkgs -a python2.7.8
 [jill@vmps14 ~]$ pip freeze | sort
@@ -391,8 +391,8 @@ _multibytecodec (Module)
 multifile (Module)</code></pre>
 <p><em>python_pkginfo.py</em> will also list any packages/modules you have installed locally in your home directory.</p>
 </div>
-<div id="installing-new-packages" class="section level2">
-<h2>Installing New Packages</h2>
+<div id="installing-new-packages" class="section level1">
+<h1><span class="header-section-number">3</span> Installing New Packages</h1>
 <p>If you find that a particular package you need is missing from one of the Python versions, you have a few options. If you believe the package will be widely used by other cluster users, you can <a href="http://www.accre.vanderbilt.edu/?page_id=369">open a helpdesk ticket</a> and request that we install the package for cluster-wise access. The other option is to install the package yourself into your home directory. There are multiple ways to install Python packages (pip, easy_install, from source). Just make sure you have the appropriate version of Python (via <strong><em>setpkgs -a</em></strong>) in your environment when perform the installation. To install a package (e.g. a packaged called <strong>word-count</strong>) into your home directory with <em>pip</em>:</p>
 <pre class="outline"><code>[jill@vmps14 ~]$ pip install word-count --user
 Collecting word-count
@@ -407,9 +407,9 @@ word_count.pyc
 word-count==0.1.0</code></pre>
 <p>Alternatively, you can build and install a package from source code into your home directory. See our <a href="http://www.accre.vanderbilt.edu/?page_id=47#python_module_install">FAQ page</a> for instructions on doing this. Note that it is generally better practice to use Anaconda virtual environments and install new packages into the virtual environment (see instructions below). This helps isolate packages and to specific projects and prevents complex dependency problems when, for example, you need a different version of a package for two different projects.</p>
 </div>
-<div id="example-scripts" class="section level2">
-<h2>Example Scripts</h2>
-<p><span style="font-size: 13px; line-height: 1.5;"> Running a Python script within a SLURM job is generally straightforward. Unless you are attempting to run one of Python's multi-processing packages, you will want to request a single task, load the appropriate version of Python from your SLURM script, and then redirect your Python file to the Python interpreter. The following example runs Python 2.7.8 on a simple Python script demonstrating the utility of writing vectorized Python code:</span></p>
+<div id="example-scripts" class="section level1">
+<h1><span class="header-section-number">4</span> Example Scripts</h1>
+<p><span style="font-size: 13px; line-height: 1.5;">Running a Python script within a SLURM job is generally straightforward. Unless you are attempting to run one of Python's multi-processing packages, you will want to request a single task, load the appropriate version of Python from your SLURM script, and then redirect your Python file to the Python interpreter. The following example runs Python 2.7.8 on a simple Python script demonstrating the utility of writing vectorized Python code:</span></p>
 <pre class="outline"><code>[bob@vmps14 run1]$ ls
 python.slurm  vectorization.py</code></pre>
 <pre class="outline"><code>[bob@vmps14 run1]$ cat python.slurm 
@@ -461,8 +461,8 @@ naive implementation: 23.35 seconds elapsed
 vectorized implementation: 0.68 seconds elapsed
 arrays equal!</code></pre>
 </div>
-<div id="managing-packages-with-anaconda" class="section level2">
-<h2>Managing Packages with Anaconda</h2>
+<div id="managing-packages-with-anaconda" class="section level1">
+<h1><span class="header-section-number">5</span> Managing Packages with Anaconda</h1>
 <p><a href="https://www.continuum.io/downloads">Anaconda</a> and its package manager &quot;conda&quot; aim to simplify package and dependency management. To load Anaconda, simply type</p>
 <pre class="outline"><code>[bob@vmps14 ~] setpkgs -a anaconda3</code></pre>
 <p>or</p>
@@ -563,9 +563,9 @@ Linking packages ...
 source activate myenvironment</code></pre>
 <p>Other useful conda commands can be found in the <a href="http://conda.pydata.org/docs/_downloads/conda-cheatsheet.pdf">Conda Cheatsheet</a>.</p>
 </div>
-<div id="jupyter-ipython-notebooks" class="section level2">
-<h2>Jupyter (iPython) Notebooks</h2>
-<p><span style="font-size: 13px; line-height: 1.5;"> Jupyter notebooks (formerly iPython notebooks) enable a user to interactively code in Python from a web browser with support for inline plotting, equation editing, among many other things. In general, a cluster environment is used for batch processing rather than interactive processing, however we do allow users to launch notebooks from compute nodes and then do editing on a local machine via a web browser.</span> In order to do this, first submit a batch job with a SLURM script similar to the following:</p>
+<div id="jupyter-ipython-notebooks" class="section level1">
+<h1><span class="header-section-number">6</span> Jupyter (iPython) Notebooks</h1>
+<p><span style="font-size: 13px; line-height: 1.5;">Jupyter notebooks (formerly iPython notebooks) enable a user to interactively code in Python from a web browser with support for inline plotting, equation editing, among many other things. In general, a cluster environment is used for batch processing rather than interactive processing, however we do allow users to launch notebooks from compute nodes and then do editing on a local machine via a web browser.</span> In order to do this, first submit a batch job with a SLURM script similar to the following:</p>
 <pre class="outline"><code>#!/bin/bash
 #SBATCH --ntasks=1
 #SBATCH --mem=2G
@@ -586,7 +586,7 @@ KeepAlive yes</code></pre>
 <p>Note that your account will be charged based on the length of your job, and not the amount of CPU time used by the job.</p>
 <p>For more tips on using Jupyter notebooks, check out <a href="https://github.com/accre/Python/tree/master/intro_to_python" title="accre-Python-intro_to_python">ACCRE's Python repository on GitHub</a>.  </p>
 </div>
-<div id="contributing-new-examples" class="section level2">
-<h2>Contributing New Examples</h2>
+<div id="contributing-new-examples" class="section level1">
+<h1><span class="header-section-number">7</span> Contributing New Examples</h1>
 <p>In order to foster collaboration and develop local Python expertise at Vanderbilt, we encourage users to submit examples of their own to <a href="https://github.com/accre/Python">ACCRE's Python Github repository</a>. Instructions for doing this can be found on <a href="http://www.accre.vanderbilt.edu/?page_id=2735">this page</a>. You can also find the examples from Sections 4 and 5 in the ACCRE repository.</p>
 </div>

@@ -1,4 +1,4 @@
-PAGE_NAME = Singularity
+PAGE_NAME = $(notdir $(shell pwd))
 
 GENERATED_FILES = Home.md $(PAGE_NAME).html $(PAGE_NAME).pdf
 

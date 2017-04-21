@@ -1,12 +1,12 @@
-<ul>
-<li><a href="#bootstrapping-a-singularity-image">Bootstrapping a Singularity Image</a></li>
-<li><a href="#using-docker2singularity-container">Using docker2singularity Container</a></li>
-<li><a href="#running-a-singularity-image-on-the-cluster">Running a Singularity Image on the Cluster</a></li>
-<li><a href="#building-a-singularity-image-with-gpus-enabled">Building a Singularity Image with GPUs Enabled</a></li>
-</ul>
+<ol style="list-style-type: decimal">
+<li><a href="#bootstrapping-a-singularity-image" style="font-size: medium;">Bootstrapping a Singularity Image</a></li>
+<li><a href="#using-docker2singularity-container" style="font-size: medium;">Using docker2singularity Container</a></li>
+<li><a href="#running-a-singularity-image-on-the-cluster" style="font-size: medium;">Running a Singularity Image on the Cluster</a></li>
+<li><a href="#building-a-singularity-image-with-gpus-enabled" style="font-size: medium;">Building a Singularity Image with GPUs Enabled</a></li>
+</ol>
 <p><a href="http://singularity.lbl.gov/docs-docker">Singularity</a> is a tool that allows containers (including those converted from Docker) to be run within a shared high-performance computing environment. This enables users to control the OS environment (including software libraries) that their jobs run within. For example, if a user wishes to run within an Ubuntu 16.04 environment he or she may do so despite the fact that the OS on the ACCRE cluster is a completely different Linux distribution (i.e. CentOS)! Docker containers themselves cannot be run in a shared environment like the ACCRE cluster for security reasons. However, Singularity enables a user to convert a Docker container image into a Singularity container image, which can then be run on the cluster. When running within a Singularity container, a user has the same permissions and privileges that he or she would have outside the container. A Singularity image generally must first be developed and built from a Linux machine where you have administrative access (i.e. a personal machine), although ACCRE makes standard images available to all cluster users at <code>/scratch/singularity-images</code> . If you do not have administrative access to a Linux machine, you can create a virtual Linux machine using a free tool like <a href="https://www.virtualbox.org/">VirtualBox</a> . A user’s cluster storage may be accessed from within the Singularity container, but no operations (e.g. the installation of system software) that require root/sudo privileges are allowed within the context of the Singularity container when run from the cluster. If you are interested in using Singularity but need assistance creating a custom image to run on the cluster, please schedule an appointment via our Helpdesk. Below are some basic instructions for running Singularity on the cluster. The Singularity documentation is very helpful, so we suggest you invest some time reading through it as well.</p>
 <div id="bootstrapping-a-singularity-image" class="section level1">
-<h1>Bootstrapping a Singularity Image</h1>
+<h1><span class="header-section-number">1</span> Bootstrapping a Singularity Image</h1>
 <p>Once you have <a href="http://singularity.lbl.gov/install-linux">installed Singularity on your own Linux machine or virtual machine</a> , you are ready to create your image. First, create a spec file called ubuntu14-accre.def that looks like the following:</p>
 <pre class="outline"><code>BootStrap: debootstrap
 OSVersion: trusty
@@ -26,7 +26,7 @@ sudo singularity bootstrap ubuntu14-accre.im ubuntu-accre.def</code></pre>
 <p>The first command will create an empty image with a default size (768 MiB, at the time this page was written). If you need a larger image containing lots of custom software, it is prudent to pass the --size option and specify the size in MiB (e.g. <em>sudo singularity create --size 2048 ubuntu14-accre.im</em> ). The second command creates your custom image based on the spec file you created above.</p>
 </div>
 <div id="using-docker2singularity-container" class="section level1">
-<h1>Using docker2singularity Container</h1>
+<h1><span class="header-section-number">2</span> Using docker2singularity Container</h1>
 <p><a href="https://github.com/singularityware/docker2singularity">Singularityware</a> provides a Docker image expressly for converting Docker images to singularity images. This is especially useful for non-Linux users who do have Docker installed on their local machine. To convert the <code>ubuntu:14.04</code> image from DockerHub to a singularity image, simply run</p>
 <pre><code>docker run \
   -v /var/run/docker.sock:/var/run/docker.sock \
@@ -37,7 +37,7 @@ sudo singularity bootstrap ubuntu14-accre.im ubuntu-accre.def</code></pre>
 <p>The resulting <code>.img</code> file can now be copied to the cluster for use.</p>
 </div>
 <div id="running-a-singularity-image-on-the-cluster" class="section level1">
-<h1>Running a Singularity Image on the Cluster</h1>
+<h1><span class="header-section-number">3</span> Running a Singularity Image on the Cluster</h1>
 <p>Once you have successfully created your image, you can shell into it with the following command:</p>
 <pre class="outline"><code># From the cluster
 setpkgs -a singularity
@@ -77,7 +77,7 @@ BUG_REPORT_URL=&quot;http://bugs.launchpad.net/ubuntu/&quot;</code></pre>
 [jill@vmps10 ~]$</code></pre>
 </div>
 <div id="building-a-singularity-image-with-gpus-enabled" class="section level1">
-<h1>Building a Singularity Image with GPUs Enabled</h1>
+<h1><span class="header-section-number">4</span> Building a Singularity Image with GPUs Enabled</h1>
 <p>From <a href="https://github.com/NVIDIA/nvidia-docker/wiki/Why%20NVIDIA%20Docker">NIVDIA’s GitHub</a> :</p>
 <blockquote>
 <p>Docker containers are often used to seamlessly deploy CPU-based applications on multiple machines. With this use case, Docker containers are both hardware- agnostic and platform-agnostic. This is obviously not the case when using NVIDIA GPUs since it is using specialized hardware and it requires the installation of the NVIDIA driver. As a result, Docker does not natively support NVIDIA GPUs with containers.</p>

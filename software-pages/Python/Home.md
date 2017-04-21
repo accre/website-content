@@ -1,3 +1,12 @@
+1.   [Versions of Python on the ACCRE
+    Cluster](#versions-of-python-on-the-accre-cluster){style="font-size: medium;"}
+1.   [Checking Installed Packages](#checking-installed-packages){style="font-size: medium;"}
+1.   [Installing New Packages](#installing-new-packages){style="font-size: medium;"}
+1.   [Example Scripts](#example-scripts){style="font-size: medium;"}
+1.   [Managing Packages with Anaconda](#managing-packages-with-anaconda){style="font-size: medium;"}
+1.   [Jupyter (iPython) Notebooks](#jupyter-ipython-notebooks){style="font-size: medium;"}
+1.   [Contributing New Examples](#contributing-new-examples){style="font-size: medium;"}
+
 Python is an interpreted programming language that has become
 increasingly popular in high-performance computing environments because
 it's available with an assortment of numerical and scientific computing
@@ -6,10 +15,9 @@ source, and free.
 
 # Versions of Python on the ACCRE Cluster
 
-When a user initially
-logs into the cluster, the system version (Python that comes
-pre-installed on the operating system) is 2.7.6 and is located in
-`/usr/local/bin`:
+When a user initially logs into the cluster, the system version (Python
+that comes pre-installed on the operating system) is 2.7.6 and is
+located in `/usr/local/bin`:
 
 ``` {.outline}
 [bob@vmps14 ~]$ which python
@@ -66,10 +74,10 @@ Section 4.
 
 # Checking Installed Packages
 
-Each different version
-of Python has its own packages installed into it, so as you are
-switching between different versions it is prudent to check the packages
-that are available. One way to do this is using `pip`:
+Each different version of Python has its own packages installed into it,
+so as you are switching between different versions it is prudent to
+check the packages that are available. One way to do this is using
+`pip`:
 
 ``` {.outline}
 [jill@vmps14 ~]$ setpkgs -a python2.7.8
@@ -436,10 +444,9 @@ installed locally in your home directory.
 
 # Installing New Packages
 
-If you find that a
-particular package you need is missing from one of the Python versions,
-you have a few options. If you believe the package will be widely used
-by other cluster users, you can [open a helpdesk
+If you find that a particular package you need is missing from one of
+the Python versions, you have a few options. If you believe the package
+will be widely used by other cluster users, you can [open a helpdesk
 ticket](http://www.accre.vanderbilt.edu/?page_id=369) and request that
 we install the package for cluster-wise access. The other option is to
 install the package yourself into your home directory. There are
@@ -475,14 +482,14 @@ package for two different projects.
 
 # Example Scripts
 
-<span style="font-size: 13px; line-height: 1.5;"> Running a Python
-script within a SLURM job is generally straightforward. Unless you are
-attempting to run one of Python's multi-processing packages, you will
-want to request a single task, load the appropriate version of Python
-from your SLURM script, and then redirect your Python file to the Python
-interpreter. The following example runs Python 2.7.8 on a simple Python
-script demonstrating the utility of writing vectorized Python
-code:</span>
+[ Running a Python script within a SLURM job is generally
+straightforward. Unless you are attempting to run one of Python's
+multi-processing packages, you will want to request a single task, load
+the appropriate version of Python from your SLURM script, and then
+redirect your Python file to the Python interpreter. The following
+example runs Python 2.7.8 on a simple Python script demonstrating the
+utility of writing vectorized Python
+code:]{style="font-size: 13px; line-height: 1.5;"}
 
 ``` {.outline}
 [bob@vmps14 run1]$ ls
@@ -699,13 +706,13 @@ Cheatsheet](http://conda.pydata.org/docs/_downloads/conda-cheatsheet.pdf).
 
 # Jupyter (iPython) Notebooks
 
-<span style="font-size: 13px; line-height: 1.5;"> Jupyter notebooks
-(formerly iPython notebooks) enable a user to interactively code in
-Python from a web browser with support for inline plotting, equation
-editing, among many other things. In general, a cluster environment is
-used for batch processing rather than interactive processing, however we
-do allow users to launch notebooks from compute nodes and then do
-editing on a local machine via a web browser.</span> In order to do
+[ Jupyter notebooks (formerly iPython notebooks) enable a user to
+interactively code in Python from a web browser with support for inline
+plotting, equation editing, among many other things. In general, a
+cluster environment is used for batch processing rather than interactive
+processing, however we do allow users to launch notebooks from compute
+nodes and then do editing on a local machine via a web
+browser.]{style="font-size: 13px; line-height: 1.5;"} In order to do
 this, first submit a batch job with a SLURM script similar to the
 following:
 
@@ -719,26 +726,23 @@ setpkgs -a anaconda3
 jupyter notebook --no-browser --ip='*' --port=7777
 ```
 
-Here, a user is requesting four hours of walltime and is using Anaconda3. 
-The important line is the last one, where a few important options
-must be passed to the jupyter interpreter. Make sure you include these
-same options in your SLURM script. If you want to launch multiple
-notebooks from the same compute node, you would need to use a
-different port (try incrementing by one). Use
+Here, a user is requesting four hours of walltime and is using
+Anaconda3. The important line is the last one, where a few important
+options must be passed to the jupyter interpreter. Make sure you include
+these same options in your SLURM script. If you want to launch multiple
+notebooks from the same compute node, you would need to use a different
+port (try incrementing by one). Use
 *[squeue](http://www.accre.vanderbilt.edu/?page_id=2154#squeue)* to
 monitor when your job has started. Once it has started, write down the
-name of the node where it is running and open `notebook.out` to see
-the password for this notebook; it should look something like
+name of the node where it is running and open `notebook.out` to see the
+password for this notebook; it should look something like
 
-```
-    Copy/paste this URL into your browser when you connect for the first time,
-            to login with a token:
-                    http://localhost:9999/?token=0gt123481a68b53a92490c64a1712f0e2af696ebe2db
-```
+        Copy/paste this URL into your browser when you connect for the first time,
+                to login with a token:
+                        http://localhost:9999/?token=0gt123481a68b53a92490c64a1712f0e2af696ebe2db
 
-Open a Linux terminal/shell on
-your local machine (lab desktop, laptop, etc.), and enter the following
-command:
+Open a Linux terminal/shell on your local machine (lab desktop, laptop,
+etc.), and enter the following command:
 
 ``` {.outline}
 ssh -L 9999:vmp506:7777 vunetid@login.accre.vanderbilt.edu
@@ -750,8 +754,8 @@ on localhost (i.e. your local machine) to port 7777 on vmp506. Finally,
 point a web browser on your local machine to `localhost:9999` (enter
 this where you would normally put a URL address), and you should get a
 Jupyter notebook login screen. Enter the token from above, and you'll
-launch a session in your web browser, where processing within
-the notebook will take place on the compute node. This ssh session must
+launch a session in your web browser, where processing within the
+notebook will take place on the compute node. This ssh session must
 remain active in order for you to continue accessing the notebook from
 your local machine. You might consider adding these lines to your
 \~/.ssh/config file to ensure your ssh session does not time out:
@@ -763,7 +767,7 @@ KeepAlive yes
 ```
 
 Note that your account will be charged based on the length of your job,
-and not the amount of CPU time used by the job. 
+and not the amount of CPU time used by the job.
 
 For more tips on using Jupyter notebooks, check out [ACCRE's Python
 repository on
@@ -772,10 +776,9 @@ GitHub](https://github.com/accre/Python/tree/master/intro_to_python "accre-Pytho
 
 # Contributing New Examples
 
-In order to foster collaboration and develop local Python expertise 
-at Vanderbilt, 
-we encourage users to submit examples of their own to [ACCRE's Python
-Github repository](https://github.com/accre/Python). Instructions for
-doing this can be found on 
-[this page](http://www.accre.vanderbilt.edu/?page_id=2735). You can also find
+In order to foster collaboration and develop local Python expertise at
+Vanderbilt, we encourage users to submit examples of their own to
+[ACCRE's Python Github repository](https://github.com/accre/Python).
+Instructions for doing this can be found on [this
+page](http://www.accre.vanderbilt.edu/?page_id=2735). You can also find
 the examples from Sections 4 and 5 in the ACCRE repository.
