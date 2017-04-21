@@ -10,7 +10,7 @@ cluster)
 1.  **Get X server support on your local machine:** The graphics
     environment on the cluster is X11, therefore, you must install and
     run an X server from your local machine
-2.  **Configure **SSH** tunneling:** You must tell **SSH** on your local
+2.  **Configure SSH tunneling:** You must tell **SSH** on your local
     machine to allow the display of graphics from software running on
     the cluster.
 
@@ -26,7 +26,7 @@ have **SSH** installed.
 2.  Launch the X11 server.
 3.  Run an `xterm`.
 4.  When you log on to the cluster from the command line in the xterm,
-    to activate **SSH** tunneling you can use the `-X` option, i. e.,
+    to activate **SSH** tunneling you can use the `-X` option, i.e.,
     `ssh -X user@login.accre.vanderbilt.edu`.
 5.  Finally, [see below](#checkx) for how to quickly check you can
     display remote graphics locally.
@@ -35,7 +35,7 @@ have **SSH** installed.
 **SSH** installed.
 
 1.  When you log on to the cluster, `ssh -X` will activate **SSH**
-    tunneling, i. e., 
+    tunneling, i.e., 
     `ssh -X user@login.accre.vanderbilt.edu`.
 2.  [See below](#checkx) for how to quickly check you can display remote
     graphics locally.

@@ -16,13 +16,13 @@
     connectivity to the cluster, or the system hangs upon log on. What
     should I do?](#logonsystemhang)
 
--   [I cannot connect to login.accre.vanderbilt.edu or after logging
+-   [I cannot connect to `login.accre.vanderbilt.edu` or after logging
     in got an error message says my home directory is not
     found.](#dnscache)
 
 -   [How can I make a scheduled downtime work for me?](#down_time)
 
--   [How can I mount a Samba (smb) share?](#samba_mounting)
+-   [How can I mount a Samba (`smb`) share?](#samba_mounting)
 
 #### Configuring your Environment:
 

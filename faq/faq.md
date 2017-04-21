@@ -16,13 +16,13 @@
     connectivity to the cluster, or the system hangs upon log on. What
     should I do?](#logonsystemhang)
 
--   [I cannot connect to login.accre.vanderbilt.edu or after logging
+-   [I cannot connect to `login.accre.vanderbilt.edu` or after logging
     in got an error message says my home directory is not
     found.](#dnscache)
 
 -   [How can I make a scheduled downtime work for me?](#down_time)
 
--   [How can I mount a Samba (smb) share?](#samba_mounting)
+-   [How can I mount a Samba (`smb`) share?](#samba_mounting)
 
 #### Configuring your Environment:
 
@@ -158,7 +158,6 @@ Started](/?page_id=303 "Getting Started")):
 -   [How do I run Matlab/SAS job on the
     cluster?](#matlab_sas_license)
 
-
 ---
 
 ###### Accounts: How do I change my ACCRE account password? {#password}
@@ -290,7 +289,7 @@ paste" of the information in your login window if you are able.
 
 ---
 
-###### Connectivity: I cannot connect to login.accre.vanderbilt.edu or after logging in got an error message says my home directory is not found {#dnscache}
+###### Connectivity: I cannot connect to `login.accre.vanderbilt.edu` or after logging in got an error message says my home directory is not found {#dnscache}
 
 `login.accre.vanderbilt.edu` is a DNS round robin alias for one of our
 \~6 cluster gateways. It is possible that the gateway you were randomly
@@ -318,7 +317,7 @@ would ordinarily not be available!
 
 ---
 
-###### Connectivity: How do I mount a Samba (smb) share? {#samba_mounting} 
+###### Connectivity: How do I mount a Samba (`smb`) share? {#samba_mounting} 
 
 If you have been assigned a Samba or smb share to mount locally
 the following instructions should help. Note you should have been given
@@ -383,7 +382,7 @@ cluster)
 1.  **Get X server support on your local machine:** The graphics
     environment on the cluster is X11, therefore, you must install and
     run an X server from your local machine
-2.  **Configure **SSH** tunneling:** You must tell **SSH** on your local
+2.  **Configure SSH tunneling:** You must tell **SSH** on your local
     machine to allow the display of graphics from software running on
     the cluster.
 
@@ -399,7 +398,7 @@ have **SSH** installed.
 2.  Launch the X11 server.
 3.  Run an `xterm`.
 4.  When you log on to the cluster from the command line in the xterm,
-    to activate **SSH** tunneling you can use the `-X` option, i. e.,
+    to activate **SSH** tunneling you can use the `-X` option, i.e.,
     `ssh -X user@login.accre.vanderbilt.edu`.
 5.  Finally, [see below](#checkx) for how to quickly check you can
     display remote graphics locally.
@@ -408,7 +407,7 @@ have **SSH** installed.
 **SSH** installed.
 
 1.  When you log on to the cluster, `ssh -X` will activate **SSH**
-    tunneling, i. e., 
+    tunneling, i.e., 
     `ssh -X user@login.accre.vanderbilt.edu`.
 2.  [See below](#checkx) for how to quickly check you can display remote
     graphics locally.
@@ -463,8 +462,8 @@ You can change the group of a file if
 you are the file's owner and you are in the group to which you are
 trying to change the file. The command is:
 
-```
-    chgrp [options] group_name file_name
+```{.outline}
+chgrp [options] group_name file_name
 ```
 
 `-R`: recurse through subdirectories `-f`: suppress most error messages If
@@ -510,7 +509,7 @@ eight` Note that the `haswell` attribute requests the latest Intel
 processors, while `sandy_bridge` requests the previous generation. The
 `eight` attribute requests nodes that only have eight processors, and
 the scheduler will avoid placing the job on the 12-core nodes. In your
-batch script you could specify: `#SBATCH --contsraint=haswell`. This
+batch script you could specify: `#SBATCH --constraint=haswell`. This
 would instruct the scheduler to run the job only on a node with an Intel
 Xeon Haswell processor. Note that your job may take longer to start when
 these attributes are included as you are limiting the pool of resources
@@ -595,9 +594,10 @@ status of a submitted job](/?page_id=343).
     This means when the cluster is very busy, other jobs from accounts
     which are under fairshare may be assigned higher priority and may
     jump ahead of your job in the eligible queue. Use the 
-    
+ 
     ```{.outline}
-    sacctmgr show associations Accounts=account_name format=account%30,user%30,fairshare,grpcpus,grpmem
+    sacctmgr show associations Accounts=account_name \
+      format=account%30,user%30,fairshare,grpcpus,grpmem
     ``` 
     
     command to check your fairshare.
@@ -944,7 +944,11 @@ output from `accre_storage`.
 ###### Disk space: My group has storage on DORS. How can I check our usage? {#dors_usage}
 
 From any cluster gateway execute 
-`mmlsquota -j <fileset name> —block-size auto dors`. 
+
+```{.outline}
+mmlsquota -j <fileset name> —block-size auto dors
+```
+
 Typically, the fileset name
 is the same as your group name but may not always be.
 
