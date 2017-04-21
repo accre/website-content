@@ -6,6 +6,10 @@ as markdown,
 and use [`pandoc`](http://pandoc.org/index.html) to convert the markdown
 to html.
 
+## Requirements
+- `pandoc`
+- `xelatex` (to create PDF)
+
 ## To create new FAQ content
 
 Add a new markdown file in `faq-snippets`. Then, modify the file
@@ -31,12 +35,14 @@ Add a new markdown file in `faq-snippets`. Then, modify the file
 
 ## To generate `faq.md` and `faq.html`
 
-Run the bash script `append_content.sh`, which 
+Run `make`, which 
+
 1. looks at `faq_toc.md` to determine which snippets need to be added
 1. adds the appropriate snippets including horizontal lines and *Top of Page*
 links
 1. appends `faq_toc.md` and snippets to produce `faq.md`
 1. calls `pandoc` to convert `faq.md` to `faq.html`
+1. calls `pandoc` to convert faq.html to `faq.pdf`
 
 The resulting `faq.html` is not complete html, 
 rather it is intended to be pasted
