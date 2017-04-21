@@ -7,7 +7,7 @@ eight` Note that the `haswell` attribute requests the latest Intel
 processors, while `sandy_bridge` requests the previous generation. The
 `eight` attribute requests nodes that only have eight processors, and
 the scheduler will avoid placing the job on the 12-core nodes. In your
-batch script you could specify: `#SBATCH --contsraint=haswell`. This
+batch script you could specify: `#SBATCH --constraint=haswell`. This
 would instruct the scheduler to run the job only on a node with an Intel
 Xeon Haswell processor. Note that your job may take longer to start when
 these attributes are included as you are limiting the pool of resources

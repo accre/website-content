@@ -1,4 +1,4 @@
-###### Connectivity: How do I mount a Samba (smb) share? {#samba_mounting} 
+###### Connectivity: How do I mount a Samba (`smb`) share? {#samba_mounting} 
 
 If you have been assigned a Samba or smb share to mount locally
 the following instructions should help. Note you should have been given

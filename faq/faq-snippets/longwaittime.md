@@ -28,9 +28,10 @@ status of a submitted job](/?page_id=343).
     This means when the cluster is very busy, other jobs from accounts
     which are under fairshare may be assigned higher priority and may
     jump ahead of your job in the eligible queue. Use the 
-    
+ 
     ```{.outline}
-    sacctmgr show associations Accounts=account_name format=account%30,user%30,fairshare,grpcpus,grpmem
+    sacctmgr show associations Accounts=account_name \
+      format=account%30,user%30,fairshare,grpcpus,grpmem
     ``` 
     
     command to check your fairshare.

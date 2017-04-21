@@ -1,4 +1,4 @@
-###### Connectivity: I cannot connect to login.accre.vanderbilt.edu or after logging in got an error message says my home directory is not found {#dnscache}
+###### Connectivity: I cannot connect to `login.accre.vanderbilt.edu` or after logging in got an error message says my home directory is not found {#dnscache}
 
 `login.accre.vanderbilt.edu` is a DNS round robin alias for one of our
 \~6 cluster gateways. It is possible that the gateway you were randomly

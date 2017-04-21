@@ -4,7 +4,7 @@ You can change the group of a file if
 you are the file's owner and you are in the group to which you are
 trying to change the file. The command is:
 
-```
+```{.outline}
     chgrp [options] group_name file_name
 ```
 
