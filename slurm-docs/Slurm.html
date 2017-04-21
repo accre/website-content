@@ -1,0 +1,912 @@
+<ol style="list-style-type: decimal">
+<li><a href="#intro" style="font-size: medium;">Introduction</a></li>
+<li><a href="#torque" style="font-size: medium;">SLURM vs. Torque</a></li>
+<li><a href="#commands" style="font-size: medium;">SLURM Commands</a>
+<ol style="list-style-type: decimal">
+<li><a href="#sbatch" style="font-size: medium;"><code>sbatch</code></a></li>
+<li><a href="#squeue" style="font-size: medium;"><code>squeue</code></a></li>
+<li><a href="#sacct" style="font-size: medium;"><code>sacct</code></a></li>
+<li><a href="#scontrol" style="font-size: medium;"><code>scontrol</code></a></li>
+<li><a href="#salloc" style="font-size: medium;"><code>salloc</code></a></li>
+<li><a href="#xalloc" style="font-size: medium;"><code>xalloc</code></a></li>
+<li><a href="#sinfo" style="font-size: medium;"><code>sinfo</code></a></li>
+<li><a href="#sreport" style="font-size: medium;"><code>sreport</code></a></li>
+<li><a href="#srun" style="font-size: medium;"><code>srun</code></a></li>
+</ol></li>
+<li><a href="#accrecommands" style="font-size: medium;">ACCRE Commands</a>
+<ol style="list-style-type: decimal">
+<li><a href="#rtracejob" style="font-size: medium;"><code>rtracejob</code></a></li>
+<li><a href="#q3" style="font-size: medium;"><code>q3</code></a></li>
+<li><a href="#qsummary" style="font-size: medium;"><code>qSummary</code></a></li>
+<li><a href="#showlimits" style="font-size: medium;"><code>showLimits</code></a></li>
+<li><a href="#slurmactive" style="font-size: medium;"><code>SlurmActive</code></a></li>
+</ol></li>
+<li><a href="#examples" style="font-size: medium;">Parallel Job Example Scripts</a>
+<ol style="list-style-type: decimal">
+<li><a href="#mpijobs" style="font-size: medium;">MPI Jobs</a></li>
+<li><a href="#multithread" style="font-size: medium;">Multithreaded Jobs</a></li>
+<li><a href="#arrays" style="font-size: medium;">Job Arrays</a></li>
+<li><a href="#gpujobs" style="font-size: medium;">GPU Jobs</a></li>
+</ol></li>
+<li><a href="#wrappers" style="font-size: medium;">Torque Wrappers</a></li>
+<li><a href="#envvariables" style="font-size: medium;">SLURM Environment Variables</a></li>
+</ol>
+<div id="intro" class="section level1">
+<h1><span class="header-section-number">1</span> Introduction</h1>
+<p><a href="http://slurm.schedmd.com/">SLURM</a> (Simple Linux Utility for Resource Management) is a software package for submitting, scheduling, and monitoring jobs on large compute clusters.  This page details how to use SLURM for submitting and monitoring jobs on ACCRE’s Vampire cluster. New cluster users should consult our <a href="http://www.accre.vanderbilt.edu/?page_id=343">Getting Started</a> pages, which is designed to walk you through the process of creating a job script, submitting a job to the cluster, monitoring jobs, checking job usage statistics, and understanding our cluster policies.</p>
+<p>Until early 2015, Vampire used Torque for resource management and Moab for job scheduling, and users submitted a job to Vampire by writing a script specifying the resources and commands needed to execute a program.  SLURM also requires users to submit jobs through a script, with slightly different syntax compared to Torque/Moab.  These differences are highlighted in <a href="#torque">section 2</a> . A summary of SLURM commands is shown in <a href="#commands">section 3</a> . (A great reference for SLURM commands can also be found by <a href="http://slurm.schedmd.com/pdfs/summary.pdf">clicking here</a> .)</p>
+<p>All the examples on this page can be downloaded from <a href="https://github.com/accre">ACCRE’s Github page</a> by issuing the following commands from a cluster gateway:</p>
+<pre class="outline"><code>setpkgs -a git
+git clone https://github.com/accre/SLURM.git</code></pre>
+</div>
+<div id="torque" class="section level1">
+<h1><span class="header-section-number">2</span> SLURM vs. Torque</h1>
+<p>Converting a Torque batch script to SLURM is generally a straightforward process. Below is a simple SLURM script (lefthand side) for running a Matlab job requesting 1 node, 1 CPU core, 500 MB of RAM, and 2 hours of wall time. For comparison, the equivalent Torque script is shown on the right. Aside from syntax, the two scripts have only very minor differences. In general, <code>#SBATCH</code> options tend to be more self-explanatory. Note that specifying the node (<code>#SBATCH --nodes=1</code> ) and CPU core ( <code>#SBATCH --ntasks=1</code> ) count must be broken off into two lines in SLURM, and that SLURM has no equivalent to <code>#PBS -j oe</code> (SLURM combines standard output and error into a single file by default).</p>
+<div class="figure">
+<img src="http://www.accre.vanderbilt.edu/wp-content/uploads/2014/12/Screen-Shot-2014-12-09-at-5.35.50-PM-1024x429.png" alt="Screen Shot 2014-12-09 at 5.35.50 PM" width="645" height="270" />
+<p class="caption">Screen Shot 2014-12-09 at 5.35.50 PM</p>
+</div>
+<p>Like Torque batch scripts, a SLURM batch script must begin with the <code>#!/bin/bash</code> directive on the first line. The subsequent lines begin with the SLURM directive <code>#SBATCH</code> followed by a resource request or other pertinent job information. Email alerts will be sent to the specified address when the job begins, aborts, and ends.</p>
+<p>For reference, the following table lists common Torque options along side the equivalent option in SLURM. For examples of how to include the appropriate SLURM options for parallel jobs, please refer to <a href="#examples">Section 5</a>.</p>
+<p><span id="slurmoptions"></span></p>
+<table>
+<tbody>
+<tr class="odd">
+<td align="left"><strong>Torque</strong></td>
+<td align="left"><strong>SLURM</strong></td>
+<td align="left"><strong>Meaning</strong></td>
+</tr>
+<tr class="even">
+<td align="left"><code>-l nodes=[count]</code></td>
+<td align="left"><code>--nodes=[count]</code></td>
+<td align="left">Node count</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>-l ppn=[count]</code></td>
+<td align="left"><code>--tasks-per-node=[count]</code></td>
+<td align="left">Processes per node</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left"><code>--ntasks=[count]</code></td>
+<td align="left">Total processes (across all nodes)</td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td align="left"><code>--cpus-per-task=[count]</code></td>
+<td align="left">CPU cores per process</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left"><code>--nodelist=[nodes]</code></td>
+<td align="left">Job host preference</td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td align="left"><code>--exclude=[nodes]</code></td>
+<td align="left">Job host to avoid</td>
+</tr>
+<tr class="even">
+<td align="left"><code>-l walltime=[dd:hh:mm:ss]</code></td>
+<td align="left"><code>--time=[min] or --time=[dd-hh:mm:ss]</code></td>
+<td align="left">Wall clock limit</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>-l mem=[count]</code></td>
+<td align="left"><code>--mem=[count]</code></td>
+<td align="left">RAM per node</td>
+</tr>
+<tr class="even">
+<td align="left"><code>-l pmem=[count]</code></td>
+<td align="left"><code>--mem-per-cpu=[count][M or G]</code></td>
+<td align="left">RAM per CPU core</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>-o [file_name]</code></td>
+<td align="left"><code>--output=[file_name]</code></td>
+<td align="left">Standard output file</td>
+</tr>
+<tr class="even">
+<td align="left"><code>-e [file_name]</code></td>
+<td align="left"><code>--error=[file_name]</code></td>
+<td align="left">Standard error file</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>-j oe</code></td>
+<td align="left">(default behavior)</td>
+<td align="left">Combine stdout and stderr</td>
+</tr>
+<tr class="even">
+<td align="left"><code>-t [array_spec]</code></td>
+<td align="left"><code>--array=[array_spec]</code></td>
+<td align="left">Launch job array</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>-M [email_address]</code></td>
+<td align="left"><code>--mail-user=[email_address]</code></td>
+<td align="left">Email for job alerts</td>
+</tr>
+<tr class="even">
+<td align="left"><code>-m [a or b or e]</code></td>
+<td align="left"><code>--mail-type=[BEGIN or END or FAIL or REQUEUE or ALL]</code></td>
+<td align="left">Email alert type</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>-W group_list=[account]</code></td>
+<td align="left"><code>--account=[account]</code></td>
+<td align="left">Account to charge</td>
+</tr>
+<tr class="even">
+<td align="left"><code>-d [job_id]</code></td>
+<td align="left"><code>--depend=[state:job_id]</code></td>
+<td align="left">Job dependency</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>-N [name]</code></td>
+<td align="left"><code>--job-name=[name]</code></td>
+<td align="left">Job name</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left"><code>--constrain=[attribute]</code></td>
+<td align="left">Request node attribute (westmere, sandy_bridge, haswell, eight, twelve, sixteen)</td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td align="left"><code>--partition=[name]</code></td>
+<td align="left">Submit job to specified partition (production (default), debug, maxwell, fermi, mic)</td>
+</tr>
+</tbody>
+</table>
+<p>Note that the <code>--constrain</code> option allows a user to target certain processor families or nodes with a specific CPU core count. All non-GPU groups on the cluster have access to the <code>production</code> and <code>debug</code> partitions. The purpose of the <code>debug</code> partition is to allow users to quickly test a representative job before submitting a larger number of jobs to the production partition (which is the default partition on our cluster). Wall time limits and other policies for each of our partitions are shown below.</p>
+<p><span id="partitioninfo"></span></p>
+<table>
+<tbody>
+<tr class="odd">
+<td align="left"><strong>Partition</strong></td>
+<td align="left"><strong>Max Wall Time</strong></td>
+<td align="left"><strong>Max Running Jobs</strong></td>
+<td align="left"><strong>Max Submitted Jobs</strong></td>
+<td align="left"><strong>Resources</strong></td>
+</tr>
+<tr class="even">
+<td align="left"><code>production</code></td>
+<td align="left">14 days</td>
+<td align="left">n/a</td>
+<td align="left">n/a</td>
+<td align="left">6000-6500 CPU cores</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>debug</code></td>
+<td align="left">30 minutes</td>
+<td align="left">2</td>
+<td align="left">5</td>
+<td align="left">8 CPU cores</td>
+</tr>
+<tr class="even">
+<td align="left"><code>maxwell</code></td>
+<td align="left">5 days</td>
+<td align="left">n/a</td>
+<td align="left">n/a</td>
+<td align="left">144 CPU cores, 48 Maxwell GPUs</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>fermi</code></td>
+<td align="left">14 days</td>
+<td align="left">n/a</td>
+<td align="left">n/a</td>
+<td align="left">128 CPU cores, 64 Fermi GPUs</td>
+</tr>
+<tr class="even">
+<td align="left"><code>mic</code></td>
+<td align="left">14 days</td>
+<td align="left">2</td>
+<td align="left">n/a</td>
+<td align="left">64 CPU cores, 8 Intel Xeon Phis</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="commands" class="section level1">
+<h1><span class="header-section-number">3</span> SLURM Commands</h1>
+<p>Just like Torque, SLURM offers a number of helpful commands for tasks ranging from job submission and monitoring to modifying resource requests for jobs that have already been submitted to the queue. Below is a list of SLURM commands, as well as the Torque equivalent in the far left column.</p>
+<p><span id="slurmcommands"></span></p>
+<table>
+<tbody>
+<tr class="odd">
+<td align="left"><strong>Torque</strong></td>
+<td align="left"><strong>SLURM</strong></td>
+<td align="left"><strong>Function</strong></td>
+</tr>
+<tr class="even">
+<td align="left"><code>qsub [job_script]</code></td>
+<td align="left"><code>sbatch [job_script]</code></td>
+<td align="left">Job submission</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>qstat</code> or <code>showq</code></td>
+<td align="left"><code>squeue</code></td>
+<td align="left">Job/Queue status</td>
+</tr>
+<tr class="even">
+<td align="left"><code>qdel [JOB_ID]</code></td>
+<td align="left"><code>scancel [JOB_ID]</code></td>
+<td align="left">Job deletion</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>pbsnodes</code></td>
+<td align="left"><code>scontrol show nodes</code></td>
+<td align="left">Node list</td>
+</tr>
+<tr class="even">
+<td align="left"><code>qhold [JOB_ID]</code></td>
+<td align="left"><code>scontrol hold [JOB_ID]</code></td>
+<td align="left">Job hold</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>qrls [JOB_ID]</code></td>
+<td align="left"><code>scontrol release [JOB_ID]</code></td>
+<td align="left">Job release</td>
+</tr>
+<tr class="even">
+<td align="left"><code>qstat -a</code></td>
+<td align="left"><code>sinfo</code></td>
+<td align="left">Cluster status</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>qsub -I</code></td>
+<td align="left"><code>salloc</code></td>
+<td align="left">Launch interactive job</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left"><code>srun [command]</code></td>
+<td align="left">Launch (parallel) job step</td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td align="left"><code>sacct</code></td>
+<td align="left">Displays job accounting information</td>
+</tr>
+</tbody>
+</table>
+<div id="sbatch" class="section level2">
+<h2><span class="header-section-number">3.1</span> <code>sbatch</code></h2>
+<p>The <code>sbatch</code> command is used for submitting jobs to the cluster. Like Torque’s <code>qsub</code> , <code>sbatch</code> accepts a number of options either from the command line, or (more typically) from a batch script. An example of a SLURM batch script (called <code>simple.slurm</code> ) is shown below:</p>
+<pre class="outline"><code>#!/bin/bash
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --mem-per-cpu=1G
+#SBATCH --time=0-00:15:00     # 15 minutes
+#SBATCH --output=my.stdout
+#SBATCH --mail-user=vunetid@vanderbilt.edu
+#SBATCH --mail-type=ALL
+#SBATCH --job-name=&quot;just_a_test&quot;
+
+# Put commands for executing job below this line
+# This example is loading Python 2.7.8 and then
+# writing out the version of Python
+setpkgs -a python2.7.8
+python --version</code></pre>
+<p>To submit this batch script, a user would type:</p>
+<pre class="outline"><code>sbatch simple.slurm</code></pre>
+<p>This job (called <code>just_a_test</code> ) requests 1 compute node, 1 task (by default, SLURM will assign 1 CPU core per task), 1 GB of RAM per CPU core, and 15 minutes of wall time (the time required for the job to complete). Note that these are the defaults for any job, but it is good practice to include these lines in a SLURM script in case you need to request additional resources.</p>
+<p>Optionally, any <code>#SBATCH</code> line may be replaced with an equivalent command-line option. For instance, the <code>#SBATCH --ntasks=1</code> line could be removed and a user could specify this option from the command line using:</p>
+<pre class="outline"><code>sbatch --ntasks=1 simple.slurm</code></pre>
+<p>The commands needed to execute a program must be included beneath all <code>#SBATCH</code> commands. Lines beginning with the <code>#</code> symbol (without /bin/bash or SBATCH) are comment lines that are not executed by the shell. The example above simply prints the version of Python loaded in a user’s path. It is good practice to include any <code>setpkgs</code> commands in your SLURM script. A real job would likely do something more complex than the example above, such as read in a Python file for processing by the Python interpreter.</p>
+<p>For more information about <code>sbatch</code> see: <a href="http://slurm.schedmd.com/sbatch.html" class="uri">http://slurm.schedmd.com/sbatch.html</a></p>
+</div>
+<div id="squeue" class="section level2">
+<h2><span class="header-section-number">3.2</span> <code>squeue</code></h2>
+<p><code>squeue</code> is used for viewing the status of jobs. By default, <code>squeue</code> will output the following information about currently running jobs and jobs waiting in the queue: Job ID, Partition, Job Name, User Name, Job Status, Run Time, Node Count, and Node List. There are a large number of command-line options available for customizing the information provided by <code>squeue</code> . Below are a list of examples:</p>
+<p><span id="squeuecommands"></span></p>
+<table>
+<tbody>
+<tr class="odd">
+<td align="left"><strong>Command</strong></td>
+<td align="left"><strong>Meaning</strong></td>
+</tr>
+<tr class="even">
+<td align="left"><code>squeue --long</code></td>
+<td align="left">Provide more job information</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>squeue --user=USER_ID</code></td>
+<td align="left">Provide information for <code>USER_ID</code>’s jobs</td>
+</tr>
+<tr class="even">
+<td align="left"><code>squeue --account=ACCOUNT_ID</code></td>
+<td align="left">Provide information for jobs running under <code>ACCOUNT_ID</code></td>
+</tr>
+<tr class="odd">
+<td align="left"><code>squeue --states=running</code></td>
+<td align="left">Show running jobs only</td>
+</tr>
+<tr class="even">
+<td align="left"><code>squeue --Format=account,username,numcpus,state,timeleft</code></td>
+<td align="left">Customize output of <code>squeue</code></td>
+</tr>
+<tr class="odd">
+<td align="left"><code>squeue --start</code></td>
+<td align="left">List estimated start time for queued jobs</td>
+</tr>
+<tr class="even">
+<td align="left"><code>squeue --help</code></td>
+<td align="left">Show all options</td>
+</tr>
+</tbody>
+</table>
+<p>For more information about <code>squeue</code> see: <a href="http://slurm.schedmd.com/squeue.html" class="uri">http://slurm.schedmd.com/squeue.html</a></p>
+</div>
+<div id="sacct" class="section level2">
+<h2><span class="header-section-number">3.3</span> <code>sacct</code></h2>
+<p>This command is used for viewing information for completed jobs. This can be useful for monitoring job progress or diagnosing problems that occurred during job execution. By default, <code>sacct</code> will report Job ID, Job Name, Partition, Account, Allocated CPU Cores, Job State, and Exit Code for all of the current user’s jobs that completed since midnight of the current day. Many options are available for modifying the information output by <code>sacct</code> :</p>
+<p><span id="sacctcommands"></span></p>
+<table>
+<tbody>
+<tr class="odd">
+<td align="left"><strong>Command</strong></td>
+<td align="left"><strong>Meaning</strong></td>
+</tr>
+<tr class="even">
+<td align="left"><code>sacct --starttime 12.04.14</code></td>
+<td align="left">Show information since midnight of Dec 4, 2014</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>sacct --allusers</code></td>
+<td align="left">Show information for all users</td>
+</tr>
+<tr class="even">
+<td align="left"><code>sacct --accounts=ACCOUNT_ID</code></td>
+<td align="left">Show information for all users under <code>ACCOUNT_ID</code></td>
+</tr>
+<tr class="odd">
+<td align="left"><code>sacct --format=&quot;JobID,user,account,elapsed, Timelimit,MaxRSS,ReqMem,MaxVMSize,ncpus,ExitCode&quot;</code></td>
+<td align="left">Show listed job information</td>
+</tr>
+<tr class="even">
+<td align="left"><code>sacct --help</code></td>
+<td align="left">Show all options</td>
+</tr>
+</tbody>
+</table>
+<p>The <code>--format</code> option is particularly useful, as it allows a user to customize output of job usage statistics. We would suggest create an alias for running a customized version of <code>sacct</code> . For instance, the <code>elapsed</code> and <code>Timelimit</code> arguments allow for a comparison of allocated vs. actual wall time. <code>MaxRSS</code> and <code>MaxVMSize</code> shows maximum RAM and virtual memory usage information for a job, respectively, while <code>ReqMem</code> reports the amount of RAM requested.</p>
+<p>For more information about <code>sacct</code> see: <a href="http://slurm.schedmd.com/sacct.html" class="uri">http://slurm.schedmd.com/sacct.html</a></p>
+</div>
+<div id="scontrol" class="section level2">
+<h2><span class="header-section-number">3.4</span> <code>scontrol</code></h2>
+<p><code>scontrol</code> is used for monitoring and modifying queued jobs. One of its most powerful options is the <code>scontrol show job</code> option, which is analogous to Torque’s <code>checkjob</code> command. <code>scontrol</code> is also used for holding and releasing jobs. Below is a list of useful <code>scontrol</code> commands:</p>
+<p><span id="scontrolcommands"></span></p>
+<table>
+<tbody>
+<tr class="odd">
+<td align="left"><strong>Command</strong></td>
+<td align="left"><strong>Meaning</strong></td>
+</tr>
+<tr class="even">
+<td align="left"><code>scontrol show job JOB_ID</code></td>
+<td align="left">Show information for queued or running job</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>scontrol hold JOB_ID</code></td>
+<td align="left">Place hold on job</td>
+</tr>
+<tr class="even">
+<td align="left"><code>scontrol release JOB_ID</code></td>
+<td align="left">Release hold on job</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>scontrol show nodes</code></td>
+<td align="left">Show hardware details for nodes on cluster</td>
+</tr>
+<tr class="even">
+<td align="left"><code>scontrol update JobID=JOB_ID Timelimit=1-12:00:00</code></td>
+<td align="left">Change wall time to 1 day 12 hours</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>scontrol update dependency=JOB_ID</code></td>
+<td align="left">Add job dependency so that job only starts after <code>JOB_ID</code> completes</td>
+</tr>
+<tr class="even">
+<td align="left"><code>scontrol --help</code></td>
+<td align="left">Show all options</td>
+</tr>
+</tbody>
+</table>
+<p>Please note that the time limit or memory of a job can only be adjust for pending jobs, not for running jobs.</p>
+<p>For more information about <code>scontrol</code> see: <a href="http://slurm.schedmd.com/scontrol.html" class="uri">http://slurm.schedmd.com/scontrol.html</a></p>
+</div>
+<div id="salloc" class="section level2">
+<h2><span class="header-section-number">3.5</span> <code>salloc</code></h2>
+<p>The function of <code>salloc</code> is to launch an interactive job on compute nodes. This can be useful for troubleshooting/debugging a program or if a program requires user input. To launch an interactive job requesting 1 node, 2 CPU cores, and 1 hour of wall time, a user would type:</p>
+<pre class="outline"><code>salloc --nodes=1 --ntasks=2 --time=1:00:00</code></pre>
+<p>This command will execute and then wait for the allocation to be obtained. Once the allocation is granted, an interactive shell is initiated on the allocated node (or one of the allocated nodes, if multiple nodes were allocated). At this point, a user can execute normal commands and launch his/her application like normal.</p>
+<p>Note that many of the <code>sbatch</code> options are also applicable for <code>salloc</code> , so a user can insert other typical resource requests, such as memory. Another useful feature in <code>salloc</code> is that it enforces resource requests to prevent users or applications from using more resources than were requested. For example:</p>
+<pre class="outline"><code>[bob@vmps12 ~]$ salloc --nodes=1 --ntasks=2 --time=1:00:00
+salloc: Pending job allocation 1772833
+salloc: job 1772833 queued and waiting for resources
+salloc: job 1772833 has been allocated resources
+salloc: Granted job allocation 1772833
+[bob@vmp586 ~]$ hostname
+vmp586
+[bob@vmp586 ~]$ srun -n 2 hostname
+vmp586
+vmp586
+[bob@vmp586 ~]$ srun -n 4 hostname
+srun: error: Unable to create job step: More processors requested than permitted
+[bob@vmp586 ~]$ exit
+exit
+srun: error: vmp586: task 0: Exited with exit code 1
+salloc: Relinquishing job allocation 1772833
+salloc: Job allocation 1772833 has been revoked.
+[bob@vmps12 ~]$</code></pre>
+<p>In this example, <code>srun -n 4</code> failed because only 2 tasks were allocated for this interactive job (for details on <code>srun</code> see <a href="#srun">Section 3.9</a> below). Also note that typing <code>exit</code> during the interactive session will kill the interactive job, even if the allotted wall time has not been reached.</p>
+<p>For more information about <code>salloc</code> see: <a href="http://slurm.schedmd.com/salloc.html" class="uri">http://slurm.schedmd.com/salloc.html</a></p>
+</div>
+<div id="xalloc" class="section level2">
+<h2><span class="header-section-number">3.6</span> <code>xalloc</code></h2>
+<p>Similarly to <code>salloc</code> , this command provides an interactive shell on a compute node but with the possibility of running programs with a graphical user interface (GUI) directly on the compute node. To correctly visualize the GUI on your monitor, you first need to connect to the cluster’s gateway with the X11 forwarding abilitated as follows:</p>
+<pre class="outline"><code>[bob@bobslaptop ~]$ ssh -X bob@login.accre.vanderibilt.edu</code></pre>
+<p>Then from the gateway request the interactive job with X11 forwarding as in the following example:</p>
+<pre class="outline"><code>[bob@vmps12 ~]$ xalloc --nodes=1 --ntasks=2 --time=1:00:00
+srun: job 12555243 queued and waiting for resources
+srun: job 12555243 has been allocated resources
+[bob@vmp586 ~]$</code></pre>
+<p>At this point when launching a GUI based software, the interface should appear on your monitor.</p>
+</div>
+<div id="sinfo" class="section level2">
+<h2><span class="header-section-number">3.7</span> <code>sinfo</code></h2>
+<p><code>sinfo</code> allows users to view information about SLURM nodes and partitions. A partition is a set of nodes (usually a cluster) defined by the cluster administrator. Below are a few example uses of <code>sinfo</code> :</p>
+<p><span id="sinfocommands"></span></p>
+<table>
+<tbody>
+<tr class="odd">
+<td align="left"><strong>Command</strong></td>
+<td align="left"><strong>Meaning</strong></td>
+</tr>
+<tr class="even">
+<td align="left"><code>sinfo --Nel</code></td>
+<td align="left">Displays info in a node-oriented format</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>sinfo --partition=gpu</code></td>
+<td align="left">Get information about GPU nodes</td>
+</tr>
+<tr class="even">
+<td align="left"><code>sinfo --states=IDLE</code></td>
+<td align="left">Displays info about idle nodes</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>sinfo --help</code></td>
+<td align="left">Show all options</td>
+</tr>
+</tbody>
+</table>
+<p>For more information about <code>sinfo</code> see: <a href="http://slurm.schedmd.com/sinfo.html" class="uri">http://slurm.schedmd.com/sinfo.html</a></p>
+</div>
+<div id="sreport" class="section level2">
+<h2><span class="header-section-number">3.8</span> <code>sreport</code></h2>
+<p><code>sreport</code> is used for generating reports of job usage and cluster utilization. It queries the SLURM database to obtain this information. By default information will be shown for jobs run since midnight of the current day. Some examples:</p>
+<p><span id="sreportcommands"></span></p>
+<table>
+<tbody>
+<tr class="odd">
+<td align="left"><strong>Command</strong></td>
+<td align="left"><strong>Meaning</strong></td>
+</tr>
+<tr class="even">
+<td align="left"><code>sreport cluster utilization</code></td>
+<td align="left">Show cluster utilization report</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>sreport user top</code></td>
+<td align="left">Show top 10 cluster users based on total CPU time</td>
+</tr>
+<tr class="even">
+<td align="left"><code>sreport cluster AccountUtilizationByUser start=2014-12-01</code></td>
+<td align="left">Show account usage per user dating back to December 1, 2014</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>sreport job sizesbyaccount PrintJobCount</code></td>
+<td align="left">Show number of jobs run on a per-group basis</td>
+</tr>
+<tr class="even">
+<td align="left"><code>sreport --help</code></td>
+<td align="left">Show all options</td>
+</tr>
+</tbody>
+</table>
+<p>For more information about <code>sreport</code> see: <a href="http://slurm.schedmd.com/sreport.html" class="uri">http://slurm.schedmd.com/sreport.html</a></p>
+</div>
+<div id="srun" class="section level2">
+<h2><span class="header-section-number">3.9</span> <code>srun</code></h2>
+<p>This command is used to launch a parallel job step. Typically, <code>srun</code> is invoked from a SLURM job script to launch a MPI job (much in the same way that <code>mpirun</code> or <code>mpiexec</code> are used). More details about running MPI jobs within SLURM are provided <a href="#mpijobs">below</a> . Please note that your application must include MPI code in order to run in parallel across multiple CPU cores using <code>srun</code> . Invoking <code>srun</code> on a non-MPI command or executable will result in this program being independently run X times on each of the CPU cores in the allocation.</p>
+<p>Alternatively, <code>srun</code> can be run directly from the command line on a gateway, in which case <code>srun</code> will first create a resource allocation for running the parallel job. The <code>-n [CPU_CORES]</code> option is passed to specify the number of CPU cores for launching the parallel job step. For example, running the following command from the command line will obtain an allocation consisting of 16 CPU cores and then run the command <code>hostname</code> across these cores:</p>
+<pre class="outline"><code>srun -n 16 hostname</code></pre>
+<p>For more information about <code>srun</code> see: <a href="http://www.schedmd.com/slurmdocs/srun.html" class="uri">http://www.schedmd.com/slurmdocs/srun.html</a></p>
+</div>
+</div>
+<div id="accrecommands" class="section level1">
+<h1><span class="header-section-number">4</span> ACCRE Commands</h1>
+<p>In addition to commands provided by SLURM, ACCRE staff have also written a number of useful commands that are available for use on the ACCRE cluster.</p>
+<div id="rtracejob" class="section level2">
+<h2><span class="header-section-number">4.1</span> <code>rtracejob</code></h2>
+<p><code>rtracejob</code> is used to compare resource requests to resource usage for an individual job. It takes a job id as its single argument. For example:</p>
+<pre class="outline"><code>[bob@vmps12 ~]$ rtracejob 1234567
++------------------+--------------------------+
+|  User: bob       |      JobID: 1234567      |
++------------------+--------------------------+
+| Account          | chemistry                |
+| Job Name         | python.slurm             |
+| State            | Completed                |
+| Exit Code        | 0:0                      |
+| Wall Time        | 00:10:00                 |
+| Requested Memory | 1000Mc                   |
+| Memory Used      | 13712K                   |
+| CPUs Requested   | 1                        |
+| CPUs Used        | 1                        |
+| Nodes            | 1                        |
+| Node List        | vmp505                   |
+| Wait Time        | 0.4 minutes              |
+| Run Time         | 0.4                      |
+| Submit Time      | Thu Jun 18 09:23:32 2015 |
+| Start Time       | Thu Jun 18 09:23:57 2015 |
+| End Time         | Thu Jun 18 09:24:23 2015 |
++------------------+--------------------------+
+| Today&#39;s Date     | Thu Jun 18 09:25:08 2015 |
++------------------+--------------------------+</code></pre>
+<p><code>rtracejob</code> is useful for troubleshooting when something goes wrong with your job. For example, a user might want to check how much memory a job used compared to how much was requested, or how long it took a job to execute relative to how much wall time was requested. In this example, note the <code>Requested Memory</code> reported is 1000Mc, meaning 1000 megabytes per core (the “c” stands for “core”). This is the default for jobs that specify no memory requirement. If you see a lowercase “n” on the <code>Requested Memory</code> line, this stands for “node” and occurs when a <code>--mem=</code> line is included in a SLURM script, which allocates the amount of memory listed per node in the allocation.</p>
+</div>
+<div id="q3" class="section level2">
+<h2><span class="header-section-number">4.2</span> <code>q3</code></h2>
+<p><code>q3</code> is a useful command for getting a breakdown of currently running or recently run jobs and their states, organized by user, group, and account. The command takes no arguments and after a few seconds will produce output with a format similar to the following:</p>
+<pre class="outline"><code>[jill@vmps12 ~]$ q3
++------------+------------+-------------+-----------+
+| User       | Total Jobs | Total Cores | State     |
++------------+------------+-------------+-----------+
+| jack       |     1      |      0      | Pending   |
+| jack       |     7      |      7      | Running   |
+| jack       |     59     |      59     | Completed |
+| jack       |     2      |      2      | Failed    | 
+| jack       |     1      |      1      | Timed Out |
+| jill       |     12     |      24     | Running   |
+| jill       |     7      |      14     | Completed | 
++------------+------------+-------------+-----------+
++-------------------+------------+-------------+-----------+
+| Group             | Total Jobs | Total Cores | State     |
++-------------------+------------+-------------+-----------+
+| science           |     1      |      0      | Pending   |
+| science           |     19     |      31     | Running   |
+| science           |     66     |      73     | Completed |
+| science           |     2      |      2      | Failed    |
+| science           |     1      |      1      | Timed Out |
++-------------------+------------+-------------+-----------+
++-----------------+-----------+-----------+--------------+--------------------+------+-------+-----------+
+| Account         | Fairshare | Max Cores | Max Mem (MB) | Max CPU Time (Min) | Jobs | Cores |   State   | 
++-----------------+-----------+-----------+--------------+--------------------+------+-------+-----------+
+| science_account |     12    |    360    |   2457600    |      1382400       |  1   |   0   | Pending   | 
+| science_account |     12    |    360    |   2457600    |      1382400       |  19  |   31  | Running   | 
+| science_account |     12    |    360    |   2457600    |      1382400       |  66  |   73  | Completed |
+| science_account |     12    |    360    |   2457600    |      1382400       |  2   |   2   | Failed    | 
+| science_account |     12    |    360    |   2457600    |      1382400       |  1   |   1   | Timed Out |
++-----------------+-----------+-----------+--------------+--------------------+------+-------+-----------+
++-------------+------+-------+
+|             | Jobs | Cores |
++-------------+------+-------+
+| Pending     |  1   |   0   |
+| Running     |  19  |   31  |
+| Completed   |  66  |   73  |
+| Failed Jobs |  2   |   2   |
+| Timed Out   |  1   |   1   |
++-------------+------+-------+</code></pre>
+<p>In this example, two users (jack and jill) are running jobs on the cluster. Both of these users are in a group called <code>science</code> , which is under an account called <code>science_account</code> . Accounts are important because resource limits are generally enforced on the account level, so <code>q3</code> makes it easy to compare an account’s usage to its limits and to see which users are running jobs under an account. The three types of limits are Max Cores, Max Mem, and Max CPU Time, each of which limit the resources available to all jobs running under an account. For reference, if a job is pending due to a resource limitation, this will be indicated in the far right column from the output of <code>squeue</code> . AssocGrpCpuLimit, AssocGrpMemLimit, and AssocGrpRunMinsLimit are the reasons that will be shown by <code>squeue</code> based on limits on CPU cores, memory, or CPU time, respectively.</p>
+</div>
+<div id="qsummary" class="section level2">
+<h2><span class="header-section-number">4.3</span> <code>qSummary</code></h2>
+<p><code>qSummary</code> provides an alternate summary of jobs and cores running across all groups in the cluster. It is possible to filter the results by selecting a specific account through the -g option.</p>
+<pre class="outline"><code> 
+[jill@vmps12 ~]$ qSummary
+GROUP      USER        ACTIVE_JOBS  ACTIVE_CORES  PENDING_JOBS  PENDING_CORES
+-----------------------------------------------------------------------------
+science                    18            34             5             7
+           jack             5             5             4             4
+           jill            13            29             1             3
+-----------------------------------------------------------------------------
+economics                  88           200           100           100
+           emily           88           200           100           100
+-----------------------------------------------------------------------------
+Totals:                   106           234           105           107</code></pre>
+<p>As shown, the output from <code>qSummary</code> provides a basic view of the active and pending jobs and cores across groups and users within a group.</p>
+</div>
+<div id="showlimits" class="section level2">
+<h2><span class="header-section-number">4.4</span> <code>showLimits</code></h2>
+<p>As the name suggests, <code>showLimits</code> will display the resource limits imposed on accounts and groups on the cluster. Running the command without any arguments will list all accounts and groups on the cluster. Optionally, <code>showLimits</code> also accepts a -g argument followed by the name of a group or account. For example, to see a list of resource limits imposed on an account named <code>science_account</code> (this account does not actually exist on the cluster):</p>
+<pre class="outline"><code>[jill@vmps12 ~]$ showLimits -g science_account
+ACCOUNT         GROUP       FAIRSHARE   MAXCPUS   MAXMEM(GB)  MAXCPUTIME(HRS)
+-----------------------------------------------------------------------------
+science_account                12        3600       2400           23040
+               biology          1        2400       1800               -
+               chemistry        1         800        600               -
+               physics          1         600        600            8640
+               science          1           -       2200           20000
+-----------------------------------------------------------------------------</code></pre>
+<p>Limits are always imposed on the account level, and occasionally on the group level when multiple groups fall under a single account. If a particular limit is not defined on the group level, the group is allowed access to the entire limit under its parent account. For example, the <code>science</code> group does not have a MAXCPUS limit defined, and therefore can run across a maximum of 3600 cores so long as no other groups under <code>science_account</code> are running and no other limits (<code>MAXMEM</code> or <code>MAXCPUTIME</code>) are exceeded.</p>
+<p>We leave <code>FAIRSHARE</code> defined on the account level only, so groups within the same account do not receive elevated priority relative to one another. The value 1 for FAIRSHARE defined at the group level means that all groups under the account receive equal relative priority.</p>
+</div>
+<div id="slurmactive" class="section level2">
+<h2><span class="header-section-number">4.5</span> <code>SlurmActive</code></h2>
+<p><code>SlurmActive</code> displays a concise summary of the percentage of CPU cores and nodes currently allocated to jobs, and the number of memory-starved CPU cores on the cluster. For GPU accelerated nodes it will show the number of allocated GPUs.</p>
+<pre class="outline"><code>[bob@vmps12 ~]$ SlurmActive
+Standard Nodes Info:    589 of  589 nodes active                    (100.00%)
+                       5408 of 6008 processors in use by local jobs ( 90.01%)
+                        461 of 6008 processors are memory-starved   (  7.67%)
+                        139 of 6008 available processors            (  2.31%)
+
+GPU Nodes Info:      Fermi:  32 of 64 GPUs in use                   ( 50.00%)
+                     Maxwell: 0 of 48 GPUs in use                   (  0.00%)
+
+Phi Nodes Info:     0 of  4 nodes active                            (  0.00%)
+                    0 of 64 processors in use by local jobs         (  0.00%)
+                    0 of 64 processors are memory-starved           (  0.00%)
+
+ACCRE Cluster Totals:   597 of  621 nodes active                    ( 96.14%)
+                       5472 of 6344 processors in use by local jobs ( 86.25%)
+                        461 of 6344 processors are memory-starved   (  7.27%)
+                        411 of 6344 available processors            (  6.48%)
+
+2079 running jobs, 7162 pending jobs</code></pre>
+<p>Multiple sections are reported. In general, the <strong>Standard Node Info</strong> section is the one users are most interested in, as this corresponds to the default “production” partition on the ACCRE cluster. <strong>GPU Node Info</strong> provides information about the availability of GPU nodes on the cluster, while the <strong>Phi Node Info</strong> section provides details about the availability of the Intel Xeon Phi nodes.</p>
+<p><code>SlurmActive</code> also reports the number of memory-starved cores in each section. A core is considered memory-starved if it is available for jobs but does not have access to at least 1GB of RAM (by default, jobs are allocated 1GB RAM per core). Requesting less than 1GB of RAM per core may provide access to these cores. Note that <code>SlurmActive</code> accepts a -m option followed by the amount of RAM (in GB) if you would like to compute memory-starved cores on the basis of another memory value. For example, <code>SlurmActive -m 2</code> will report cores as being memory-starved if they do not have access to at least 2GB of RAM.</p>
+</div>
+</div>
+<div id="examples" class="section level1">
+<h1><span class="header-section-number">5</span> Parallel Job Example Scripts</h1>
+<p>Below are example SLURM scripts for jobs employing parallel processing. More basic, non-parallel example scripts can be found in <a href="#torque">Section 2</a> , <a href="#sbatch">Section 3.1</a> , and in our <a href="http://www.accre.vanderbilt.edu/?page_id=343">Getting Started</a> pages. In general, parallel jobs can be separated into four categories:</p>
+<ul>
+<li>Distributed memory programs that include explicit support for message passing between processes (e.g. MPI). These processes execute across multiple CPU cores and/or nodes.</li>
+<li>Multithreaded programs that include explicit support for shared memory processing via multiple threads of execution (e.g. Posix Threads or OpenMP) running across multiple CPU cores.</li>
+<li>Embarrassingly parallel analysis in which multiple instances of the same program execute on multiple data files simultaneously, with each instance running independently from others on its own allocated resources (i.e. CPUs and memory). SLURM job arrays offer a simple mechanism for achieving this.</li>
+<li>GPU (graphics processing unit) programs including explicit support for offloading to the device via languages like CUDA or OpenCL.</li>
+</ul>
+<p>It is important to understand the capabilities and limitations of an application in order to fully leverage the parallel processing options available on the ACCRE cluster. For instance, many popular scientific computing languages like <a href="https://developer.nvidia.com/how-to-cuda-python">Python</a> , <a href="http://www.r-tutor.com/gpu-computing">R</a> , and <a href="http://www.mathworks.com/discovery/matlab-gpu.html">Matlab</a> now offer packages that allow for GPU or multithreaded processing, especially for matrix and vector operations.</p>
+<div id="mpijobs" class="section level2">
+<h2><span class="header-section-number">5.1</span> MPI Jobs</h2>
+<p>Jobs running MPI (Message Passing Interface) code require special attention within SLURM. SLURM allocates and launches MPI jobs differently depending on the version of MPI used (e.g. OpenMPI, MPICH2, Intel MPI). We recommend using OpenMPI version 1.8.4 (to load, type <code>setpkgs -a openmpi_1.8.4</code> ) to compile code and then using SLURM’s <code>srun</code> command to launch parallel MPI jobs. The <a href="https://github.com/accre/SLURM/tree/master/mpi-job">example below</a> runs MPI code compiled by OpenMPI 1.8.4:</p>
+<pre class="outline"><code>#!/bin/bash
+#SBATCH --mail-user=vunetid@vanderbilt.edu
+#SBATCH --mail-type=ALL
+#SBATCH --nodes=3
+#SBATCH --tasks-per-node=8     # 8 MPI processes per node
+#SBATCH --time=7-00:00:00
+#SBATCH --mem=4G     # 4 GB RAM per node
+#SBATCH --output=mpi_job_slurm.log
+setpkgs -a openmpi_1.8.4
+echo $SLURM_JOB_NODELIST
+srun --mpi=pmi2 ./test  # srun is SLURM&#39;s version of mpirun/mpiexec</code></pre>
+<p>This example requests 3 nodes and 8 tasks (i.e. processes) per node, for a total of 24 MPI tasks. By default, SLURM allocates 1 CPU core per process, so this job will run across 24 CPU cores. Note that <code>srun</code> accepts many of the same arguments as <code>mpirun</code> / <code>mpiexec</code> (e.g. <code>-n &lt;number cpus&gt;</code>) but also allows increased flexibility for task affinity, memory, and many other features. Type <code>man srun</code> for a list of options. The <code>--mpi=pmi2</code> argument is required for MPI programs built with OpenMPI 1.8.4. Alternatively, MPI programs built with Intel’s MPI (setpkgs -a intel_cluster_studio_compiler) do not require this additional argument.</p>
+<p>Executables generated with older versions of OpenMPI or MPICH2 should be launched using these packages’ native <code>mpirun</code> or <code>mpiexec</code> commands rather than SLURM’s <code>srun</code> . Such programs may run under SLURM but in some cases they may not. In either case, we recommend updating to OpenMPI 1.8.4 as this library is built against SLURM and thus offers increased flexibility and reliability in our cluster environment.</p>
+<p>More information about running MPI jobs within SLURM can be found here here: <a href="http://slurm.schedmd.com/mpi_guide.html" class="uri">http://slurm.schedmd.com/mpi_guide.html</a> Feel free to <a href="http://www.accre.vanderbilt.edu/?page_id=369">open a help desk ticket</a> if you require assistance with your MPI job.</p>
+</div>
+<div id="multithread" class="section level2">
+<h2><span class="header-section-number">5.2</span> Multithreaded Jobs</h2>
+<p>Multithreaded programs are applications that are able to execute in parallel across multiple CPU cores within a single node using a shared memory execution model. In general, a multithreaded application uses a single process (i.e. “task” in SLURM) which then spawns multiple threads of execution. By default, SLURM allocates 1 CPU core per task. In order to make use of multiple CPU cores in a multithreaded program, one must include the <code>--cpus-per-task</code> option. The ACCRE cluster features 8-core and 12-core nodes, so a user can request up to 12 CPU cores per task. <a href="https://github.com/accre/SLURM/tree/master/multithreaded-job">Below is an example</a> of a multithreaded program requesting 4 CPU cores per task. The program itself is responsible for spawning the appropriate number of threads.</p>
+<pre class="outline"><code>#!/bin/bash
+#SBATCH --nodes=1
+#SBATCH --ntasks=1 
+#SBATCH --cpus-per-task=4  # 4 threads per task
+#SBATCH --time=02:00:00   # two hours
+#SBATCH --mem=4G
+#SBATCH --output=multithread.out
+#SBATCH --mail-user=vunetid@vanderbilt.edu
+#SBATCH --mail-type=ALL
+#SBATCH --job-name=multithreaded_example
+
+# Run multi-threaded application
+./hello</code></pre>
+</div>
+<div id="arrays" class="section level2">
+<h2><span class="header-section-number">5.3</span> Job Arrays</h2>
+<p>Job arrays are useful for submitting and managing a large number of similar jobs. As an example, job arrays are convenient if a user wishes to run the same analysis on 100 different files. SLURM provides job array environment variables that allow multiple versions of input files to be easily referenced. <a href="https://github.com/accre/SLURM/tree/master/job-array">In the example below</a> , three input files called <code>vectorization_0.py</code> , <code>vectorization_1.py</code> , and <code>vectorization_2.py</code> are used as input for three independent Python jobs:</p>
+<pre class="outline"><code>#!/bin/bash
+#SBATCH --mail-user=vunetid@vanderbilt.edu
+#SBATCH --mail-type=ALL
+#SBATCH --ntasks=1
+#SBATCH --time=2:00:00
+#SBATCH --mem=2G
+#SBATCH --array=0-2
+#SBATCH --output=python_array_job_slurm_%A_%a.out
+
+echo &quot;SLURM_JOBID: &quot; $SLURM_JOBID
+echo &quot;SLURM_ARRAY_TASK_ID: &quot; $SLURM_ARRAY_TASK_ID
+echo &quot;SLURM_ARRAY_JOB_ID: &quot; $SLURM_ARRAY_JOB_ID
+
+setpkgs -a python2.7.8
+python &lt; vectorization_${SLURM_ARRAY_TASK_ID}.py</code></pre>
+<p>The <code>#SBATCH --array=0-2</code> line specifies the array size (3) and array indices (0, 1, and 2). These indices are referenced through the <code>SLURM_ARRAY_TASK_ID</code> environment variable in the final line of the SLURM batch script to independently analyze the three input files. Each Python instance will receive its own resource allocation; in this case, each instance is allocated 1 CPU core (and 1 node), 2 hours of wall time, and 2 GB of RAM.</p>
+<p>One implication of allocating resources per task is that the node count will not apply across all tasks, so specifying <code>--nodes=1</code> will not limit all tasks within an array to a single node. To limit the total number of CPU cores (and thus tasks) used simultaneously, use <code>%[CPU_COUNT]</code> following the <code>--array=</code> option. For example, <code>--array=0-100%4</code> will limit the tasks to running on 4 CPU cores simultaneously. This means the tasks will execute in batches of 4 until all 100 tasks have completed.</p>
+<p>The <code>--array=</code> option is flexible in terms of the index range and stride length. For instance, <code>--array=0-10:2</code> would give indices of 0, 2, 4, 6, 8, and 10.</p>
+<p>The <code>%A</code> and <code>%a</code> variables provide a method for directing standard output to separate files. <code>%A</code> references the <code>SLURM_ARRAY_JOB_ID</code> while <code>%a</code> references <code>SLURM_ARRAY_TASK_ID</code>. SLURM treats job ID information for job arrays in the following way: each task within the array has the same <code>SLURM_ARRAY_JOB_ID</code>, and its own unique <code>SLURM_JOBID</code> and <code>SLURM_ARRAY_TASK_ID</code>. The JOBID shown from <code>squeue</code> is formatted by <code>SLURM_ARRAY_JOB_ID</code> followed by an underscore and the <code>SLURM_ARRAY_TASK_ID</code>.</p>
+<p>While the previous example provides a relatively simple method for running analyses in parallel, it can at times be inconvenient to rename files so that they may be easy indexed from within a job array. <a href="https://github.com/accre/SLURM/tree/master/job-array2">The following example</a> provides a method for analyzing files with arbitrary file names, provided they are all stored in a sub-directory named <code>data</code> :</p>
+<pre class="outline"><code>#!/bin/bash
+#SBATCH --mail-user=vunetid@vanderbilt.edu
+#SBATCH --mail-type=ALL
+#SBATCH --ntasks=1
+#SBATCH --time=2:00:00
+#SBATCH --mem=2G
+#SBATCH --array=1-5   # In this example we have 5 files to analyze
+#SBATCH --output=python_array_job_slurm_%A_%a.out
+arrayfile=`ls data/ | awk -v line=$SLURM_ARRAY_TASK_ID &#39;{if (NR == line) print $0}&#39;`
+setpkgs -a python2.7.8
+python &lt; data/$arrayfile</code></pre>
+<p>More information can be found here: <a href="http://slurm.schedmd.com/job_array.html" class="uri">http://slurm.schedmd.com/job_array.html</a></p>
+</div>
+<div id="gpujobs" class="section level2">
+<h2><span class="header-section-number">5.4</span> GPU Jobs</h2>
+<p>ACCRE has 30 compute nodes equipped with Nvidia GPU cards for general-purpose GPU computing. The nodes are divided into two partitions depending on the type of GPU available on the node:</p>
+<table>
+<tbody>
+<tr class="odd">
+<td align="left"><code>partition</code></td>
+<td align="left"><code>fermi</code> `m</td>
+<td align="left">axwell`</td>
+</tr>
+<tr class="even">
+<td align="left"><em>number of nodes</em></td>
+<td align="left">18</td>
+<td align="left">12</td>
+</tr>
+<tr class="odd">
+<td align="left"><em>GPU</em></td>
+<td align="left">4 x GTX480</td>
+<td align="left">4 x GTX Titan X</td>
+</tr>
+<tr class="even">
+<td align="left"><em>CPU cores</em></td>
+<td align="left">8</td>
+<td align="left">12</td>
+</tr>
+<tr class="odd">
+<td align="left"><strong>CUDA cores (per GPU)</strong></td>
+<td align="left">480</td>
+<td align="left">3072</td>
+</tr>
+<tr class="even">
+<td align="left"><em>host memory</em></td>
+<td align="left">48 GB</td>
+<td align="left">128 GB</td>
+</tr>
+<tr class="odd">
+<td align="left"><em>GPU memory</em></td>
+<td align="left">1.5 GB</td>
+<td align="left">12 GB</td>
+</tr>
+<tr class="even">
+<td align="left"><em>network</em></td>
+<td align="left">10 Gbps Ethernet</td>
+<td align="left">56 Gbps RoCE</td>
+</tr>
+<tr class="odd">
+<td align="left"><em>gres</em></td>
+<td align="left">1 GPU + 2 CPUs</td>
+<td align="left">1 GPU + 3 CPUs</td>
+</tr>
+</tbody>
+</table>
+<p>Users can request the desired amount of GPUs by using SLURM generic resources, also called <strong>gres</strong> . Each gres bundles together one GPU to multiple CPU cores (see table above) belonging to the same PCI Express root complex to minimize data transfer latency between host and GPU memory. <span style="text-decoration: underline;">The number of CPU cores requested cannot be higher than the sum of cores in the requested gres</span> .</p>
+<p>Below is an example SLURM script header to request 2 GTX480 GPUs and 4 CPU cores on a single node on the <code>fermi</code> partition:</p>
+<pre class="outline"><code>#!/bin/bash
+#SBATCH --account=&lt;your_gpu_account&gt;
+#SBATCH --partition=fermi
+#SBATCH --gres=gpu:2
+#SBATCH --nodes=1
+#SBATCH --ntasks=4
+#SBATCH --mem=20G
+#SBATCH --time=2:00:00
+#SBATCH --output=gpu-job.log</code></pre>
+<p>Note that you must be in one of the GPU groups on the cluster and specify this group from the job script in order to run jobs on the GPU cluster. The <code>#SBATCH --partition=&lt;fermi OR maxwell&gt;</code> line is also required in the job script.</p>
+<p>Several versions of the Nvidia CUDA API are available on the cluster and can be selected via the <code>pkginfo</code> and <code>setpkgs</code> commands:</p>
+<pre class="outline"><code>[bob@vmps12]$ pkginfo | grep cuda
+                       cuda4.2   CUDA (4.2)
+                       cuda5.0   CUDA (5.0)
+                       cuda6.0   CUDA (6.0)
+                       cuda6.5   CUDA (6.5)
+                       cuda7.0   CUDA (7.0)
+                       cuda7.5   CUDA (7.5)
+[bob@vmps12]$ setpkgs -a cuda7.0</code></pre>
+<p>There are currently a handful applications available that allow you to leverage the low-latency RoCE network available on the <code>maxwell</code> partition. Note that both GPU partitions are intended for GPU jobs only, so users are not allowed to run purely CPU programs. The GPU nodes (both the <code>maxwell</code> and <code>fermi</code> partitions) support serial CPU execution as well as parallel CPU execution using either a multi-threaded, shared memory model (e.g. with OpenMP) or a multi-process, distributed memory execution (i.e. with MPI). Two flavors of RoCE-enabled MPI are available on the cluster, as well as Gromacs and HOOMD-Blue:</p>
+<pre class="outline"><code>[bob@vmps12]$ pkginfo | grep _roce
+   gromacs_5.1.2_roce   Gromacs with OpenMPI 1.10.2 for RoCE network and CUDA 7.5 support (GCC 4.9.3)
+   hoomd_1.3.3_roce     HOOMD-Blue with OpenMPI 1.10.2 for RoCE network (GCC 4.9.3)
+   mvapich2_2.1_roce    mvapich2 2.1 for RoCE network (GCC 4.9.3) [mpi]
+   openmpi_1.10.2_roce  OpenMPI 1.10.2 for RoCE network and CUDA 7.5 support (GCC 4.9.3) [mpi]
+[bob@vmps12]$ </code></pre>
+<p>All jobs making use of a RoCE-enabled MPI distribution should use SLURM’s <code>srun</code> command rather than <code>mpirun/mpiexec</code> . <a href="https://github.com/accre/SLURM/tree/master/gpu-job">Click here for an example of a HOOMD-Blue job.</a></p>
+<p>In order to build a MPI application for the <code>maxwell</code> partition, we recommend launching an interactive job on one of the <code>maxwell</code> nodes via <code>salloc</code> :</p>
+<pre class="outline"><code>salloc --partition=maxwell --account=&lt;group&gt; --gres=gpu:1 --time=4:00:00 --mem=20G</code></pre>
+<p>To test your application without submitting a batch job you can request an interactive job session via <code>salloc</code> as explained in the corresponding paragraphs. <span style="text-decoration: underline;"><strong>This will not work with multiple GPU applications that require the use of <code>srun</code> .</strong></span></p>
+<p>It is possible to check the status of the GPU compute nodes by using the <code>gpustate</code> command:</p>
+<pre class="outline"><code>[bob@vmps13]$ gpustate
+
+==========================         ==========================
+         Fermi                              Maxwell
+==========================         ==========================
+    Total nodes -- 16                  Total nodes -- 12 
+
+    Up ----------- 13                  Up ----------- 11 
+      Mixed ------ 0                     Mixed ------ 3  
+      Allocated -- 12                    Allocated -- 1  
+      Idle ------- 1                     Idle ------- 7  
+      Reserved---- 0                     Reserved---- 1  
+    Draining ----- 0                   Draining ----- 0  
+    Drained ------ 2                   Drained ------ 0  
+    Down --------- 1                   Down --------- 0  
+    Offline ------ 1                   Offline ------ 0  
+
+    Total GPUs --- 52                  Total GPUs --- 44 
+      Idle ------- 4                     Idle ------- 33 
+      Used ------- 48                    Used ------- 11 
+==========================         ==========================
+
+vmp805   ALLOCATED       4         vmp1243  MIXED           4 
+vmp806   IDLE+DRAIN      0         vmp1244  MIXED           2 
+vmp807   ALLOCATED       4         vmp1245  IDLE            0 
+vmp808   ALLOCATED       4         vmp1246  IDLE            0 
+vmp813   IDLE            0         vmp1247  IDLE            0 
+vmp815   ALLOCATED       4         vmp1248  IDLE            0 
+vmp816   IDLE+DRAIN      0         vmp1249  IDLE            0 
+vmp818   ALLOCATED       4         vmp1250  ALLOCATED       4 
+vmp824   ALLOCATED       4         vmp1251  MIXED           1 
+vmp826   ALLOCATED       4         vmp1252  IDLE            0 
+vmp833   ALLOCATED       4         vmp1253  IDLE            0 
+vmp834   ALLOCATED       4         vmp1254  RESERVED        0 
+vmp836   ALLOCATED       4         
+vmp837   ALLOCATED       4         
+vmp838   ALLOCATED       4         
+vmp844   IDLE            0</code></pre>
+</div>
+</div>
+<div id="wrappers" class="section level1">
+<h1><span class="header-section-number">6</span> Torque Wrappers</h1>
+<p>Torque wrappers are distributed with SLURM to ease the transition from Torque to SLURM. Wrappers are available for virtually all the common Torque commands, including <code>qsub</code> , <code>qstat</code> , <code>qdel</code> , <code>qhold</code> , <code>qrls</code>, and <code>pbsnodes</code> . These wrappers are designed to function in the same way as their Torque counterparts, with support for many of the same options and flags. Therefore, users may be able to run their old Torque scripts without converting them (or with minimal modifications) to SLURM syntax. These jobs will still be managed by SLURM, but to the user it will still “feel” like a Torque environment.</p>
+<p>While the Torque wrappers should aid the transition from Torque to SLURM, in the long run we encourage users to convert their job scripts to SLURM. There are a number of reasons for converting to SLURM. The first reason is that native SLURM scripts offer increased flexibility and control over jobs. As the SLURM code base continues to expand, it is unlikely that the Torque wrappers will be fully supported and able to handle more advanced use cases. Troubleshooting and debugging of Torque scripts will also be more difficult.</p>
+</div>
+<div id="envvariables" class="section level1">
+<h1><span class="header-section-number">7</span> SLURM Environment Variables</h1>
+<table>
+<tbody>
+<tr class="odd">
+<td align="left"><strong>Variable</strong></td>
+<td align="left"><strong>Meaning</strong></td>
+</tr>
+<tr class="even">
+<td align="left"><code>SLURM_JOBID</code> J</td>
+<td align="left">ob ID</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>SLURM_SUBMIT_DIR</code> Jo</td>
+<td align="left">b submission directory</td>
+</tr>
+<tr class="even">
+<td align="left"><code>SLURM_SUBMIT_HOST</code> Na</td>
+<td align="left">me of host from which job was submitted</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>SLURM_JOB_NODELIST</code> Na</td>
+<td align="left">mes of nodes allocated to job</td>
+</tr>
+<tr class="even">
+<td align="left"><code>SLURM_ARRAY_TASK_ID</code> Tas</td>
+<td align="left">k id within job array</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>SLURM_JOB_CPUS_PER_NODE</code> CPU</td>
+<td align="left">cores per node allocated to job</td>
+</tr>
+<tr class="even">
+<td align="left"><code>SLURM_NNODES</code> N</td>
+<td align="left">umber of nodes allocated to job</td>
+</tr>
+</tbody>
+</table>
+<p>Each of these environment variables can be referenced from a SLURM batch script using the <code>$</code> symbol before the name of the variable (e.g. <code>echo $SLURM_JOBID</code>). A full list of SLURM environment variables can be found here: <a href="http://slurm.schedmd.com/sbatch.html#lbAF" class="uri">http://slurm.schedmd.com/sbatch.html#lbAF</a></p>
+</div>
