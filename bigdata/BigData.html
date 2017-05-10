@@ -1,0 +1,94 @@
+<ul>
+<li><a href="#getting-access-to-the-bigdata-cluster">Getting Access to the <code>bigdata</code> Cluster</a></li>
+</ul>
+<ol style="list-style-type: decimal">
+<li><a href="#interacting-with-the-cluster" style="font-size: medium;">Interacting with the Cluster</a></li>
+<li><a href="#the-hardware" style="font-size: medium;">The Hardware</a></li>
+<li><a href="#the-software" style="font-size: medium;">The Software</a>
+<ol style="list-style-type: decimal">
+<li><a href="#the-software-1" style="font-size: medium;">The Software</a></li>
+</ol></li>
+</ol>
+<div id="getting-access-to-the-bigdata-cluster" class="section level1">
+<h1><span class="header-section-number">1</span> Getting Access to the <code>bigdata</code> Cluster</h1>
+<p>The bigdata cluster is available for use by the Vanderbilt community. Users should <a href="http://www.accre.vanderbilt.edu/?page_id=367">contact ACCRE</a> to get access to the cluster.</p>
+</div>
+<div id="interacting-with-the-cluster" class="section level1">
+<h1><span class="header-section-number">2</span> Interacting with the Cluster</h1>
+<p>Approved Vanderbilt users will be able to connect to the hostname <code>bigdata.accre.vanderbilt.edu</code> with <code>ssh</code>. Users can submit jobs from the command line using the tools maintained by Cloudera (e.g. MapReduce, Spark, HBase, etc.).</p>
+<p>Cloudera provides the Hadoop User Experience (<a href="http://gethue.com/">Hue</a>) tool to coordinate constructing and executing jobs (not to mention browsing and managing HDFS data) through the interface <code>bigdata.accre.vanderbilt.edu:8888</code>.</p>
+</div>
+<div id="the-hardware" class="section level1">
+<h1><span class="header-section-number">3</span> The Hardware</h1>
+<p>The current bigdata cluster is a test cluster comprised of commercial hardware. To conform to Cloudera recommended configuration, three nodes are dedicated to the management of the cluster:</p>
+<ul>
+<li>abd740</li>
+<li>abd741</li>
+<li>abd742</li>
+</ul>
+<p>The computational <em>guts</em> of <code>bigdata</code> are the datanodes:</p>
+<ul>
+<li>abd743</li>
+<li>abd744</li>
+<li>abd745</li>
+<li>abd746</li>
+<li>abd747</li>
+<li>abd748</li>
+</ul>
+<p>where MapReduce jobs actually take place. Each of these nodes have one 250 GB drive reserved mainly for the OS and software, but for mounting the Hadoop Distributed File System (HDFS), each node has 2 x 4 TB hard disk drives.</p>
+</div>
+<div id="the-software" class="section level1">
+<h1><span class="header-section-number">4</span> The Software</h1>
+<p>Cloudera Manager is deployed on the cluster to coordinate job submission, with the following services running on each node:</p>
+<ul>
+<li>abd740</li>
+<li>Cloudera Manager
+<ul>
+<li>Alert Publisher</li>
+<li>Event Server</li>
+<li>Host Monitor</li>
+<li>Service Monitor</li>
+</ul></li>
+<li>HBase Master</li>
+<li>Hive
+<ul>
+<li>Hiveserver2</li>
+<li>Hive Gateway</li>
+</ul></li>
+<li>Hue Server</li>
+<li>Oozie Server</li>
+<li>Spark Gateway</li>
+<li>YARN (MR2 Included)
+<ul>
+<li>Resource Manager</li>
+<li>Job History Server</li>
+</ul></li>
+<li>Zookeeper Server</li>
+</ul>
+<hr />
+<div id="the-software-1" class="section level2">
+<h2><span class="header-section-number">4.1</span> The Software</h2>
+<ul>
+<li>abd741</li>
+<li>HDFS NameNode</li>
+<li>Hive
+<ul>
+<li>Hive Metastore Server</li>
+<li>Hive Gateway</li>
+</ul></li>
+<li>Spark Gateway</li>
+<li>YARN (MR2 Included) Resource Manager</li>
+<li><p>ZooKeeper Server</p></li>
+<li>abd742</li>
+<li>HDFS SecondaryNameNode</li>
+<li>Hive Gateway</li>
+<li>Impala
+<ul>
+<li>Impala StateStore</li>
+<li>Impala Catalog Server</li>
+</ul></li>
+<li>Spark Gateway</li>
+<li><p>ZooKeeper Server</p></li>
+</ul>
+</div>
+</div>
