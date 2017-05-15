@@ -478,10 +478,85 @@ class: center, middle
 
 # Under the Hood of MapReduce
 
-![mr_work](../mapreduce_work_structure.png)
+![dagre](../dagre.svg)
 
 
-*Original source: <http://xiaochongzhang.me/blog/>*
+---
+
+# Apache Hadoop YARN
+
+<div class="mermaid">
+graph TB 
+
+    subgraph Master 
+				rm(Resource Manager)
+    end
+    style rm fill:#4ac,stroke:#333,stroke-width:4px;
+
+		subgraph Worker
+				nm0(Node Manager) -. Node Status .-> rm
+    end
+
+    subgraph Worker
+				nm1(Node Manager) -. Node Status .-> rm
+    end
+		
+		subgraph Worker
+				nm2(Node Manager) -. Node Status .-> rm
+    end
+
+		cl0((Client)) == Job Submission ==> rm
+		cl1((Client)) == Job Submission ==> rm
+	
+    style cl0 fill:#e88,stroke:#333,stroke-width:4px;
+    style cl1 fill:#8ce,stroke:#333,stroke-width:4px;
+		
+</div>
+
+---
+
+# Apache Hadoop YARN
+
+<div class="mermaid">
+graph TB 
+
+    subgraph abd740 
+				rm(Resource Manager)
+    end
+    style rm fill:#4ac,stroke:#333,stroke-width:4px;
+
+		subgraph Datanode
+				nm0(Node Manager) -.-> rm
+				apm0>App Master]
+        cnt0>Container]
+    end
+    style apm0 fill:#8ce;
+    style cnt0 fill:#e88;
+
+    subgraph Datanode
+				nm1(Node Manager) -.-> rm
+				cnt0>Container] --> apm1>App Master]
+				
+				cnt1>Container] --> apm0
+    end
+    style apm1 fill:#e88;
+    style cnt1 fill:#8ce;
+		
+		subgraph Datanode
+				nm2(Node Manager) -.-> rm
+				cnt2>Container] --> apm1
+				cnt3>Container] --> apm1
+    end
+    style cnt2 fill:#e88;
+    style cnt3 fill:#e88;
+
+		cl0((Client)) == Job Submission ==> rm
+		cl1((Client)) == Job Submission ==> rm
+	
+    style cl0 fill:#e88,stroke:#333,stroke-width:4px;
+    style cl1 fill:#8ce,stroke:#333,stroke-width:4px;
+		
+</div>
 
 ---
 
