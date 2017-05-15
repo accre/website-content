@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>clusters</title>
+		<meta charset="utf-8">
+	</head>
+	<body>
+		<style>
+      svg {
+        overflow: hidden;
+        background-color: #d3cdcd;
+      }
+      .clusters rect {
+        fill: #0fffd0;
+        stroke: #999;
+        stroke-width: 1.5px;
+      }
+      
+      text {
+        font-weight: 300;
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serf;
+        font-size: 14px;
+      }
+      
+      .node rect {
+        stroke: #999;
+        fill: #fff;
+        stroke-width: 1.5px;
+      }
+      
+      .edgePath path {
+        stroke: #333;
+        stroke-width: 1.5px;
+      }
+		</style>
+		<svg width=1600 height=900></svg>
+		<script src="http://d3js.org/d3.v3.min.js"></script>
+		<script src="http://cpettitt.github.io/project/dagre/v0.7.3/dagre.js"></script>
+		<script src="http://cpettitt.github.io/project/dagre-d3/v0.4.10/dagre-d3.js"></script>
+    <script>
+   		// Create the input graph
+			var g = new dagreD3.graphlib.Graph({compound:true})
+			  .setGraph({})
+			  .setDefaultEdgeLabel(function() { return {}; });
+			
+			// Here we're setting the nodes
+			g.setNode('client0', {label: 'Client', style: 'fill: #ff7272'});
+			g.setNode('client1', {label: 'Client', style: 'fill: #639fff'});
+			
+      g.setNode('master', {label: 'Master', clusterLabelPos: 'bottom', style: 'fill: #ffd47f'});
+			  g.setNode('rm', {label: 'Resource Manager', style: 'fill: #0fffd0'});
+			g.setParent('rm', 'master');
+			
+      g.setNode('worker0', {label: 'Worker', clusterLabelPos: 'bottom', style: 'fill: #ffd47f'});
+        g.setNode('nm0', {label: 'NodeManager', clusterLabelPos: 'bottom', style: 'fill: #0fffd0'});
+        g.setNode('cnt0', {label: 'Container', clusterLabelPos: 'bottom', style: 'fill: #ff7272'});
+        g.setNode('am0', {label: 'App Master', clusterLabelPos: 'bottom', style: 'fill: #639fff'});
+			g.setParent('nm0', 'worker0');
+			g.setParent('cnt0', 'worker0');
+			g.setParent('am0', 'worker0');
+			
+      g.setNode('worker1', {label: 'Worker', clusterLabelPos: 'bottom', style: 'fill: #ffd47f'});
+        g.setNode('nm1', {label: 'NodeManager', clusterLabelPos: 'bottom', style: 'fill: #0fffd0'});
+        g.setNode('cnt1', {label: 'Container', clusterLabelPos: 'bottom', style: 'fill: #639fff'});
+        g.setNode('am1', {label: 'App Master', clusterLabelPos: 'bottom', style: 'fill: #ff7272'});
+			g.setParent('nm1', 'worker1');
+			g.setParent('cnt1', 'worker1');
+			g.setParent('am1', 'worker1');
+			
+      g.setNode('worker2', {label: 'Worker', clusterLabelPos: 'bottom', style: 'fill: #ffd47f'});
+        g.setNode('nm2', {label: 'NodeManager', clusterLabelPos: 'bottom', style: 'fill: #0fffd0'});
+        g.setNode('cnt2', {label: 'Container', clusterLabelPos: 'bottom', style: 'fill: #ff7272'});
+        g.setNode('cnt21', {label: 'Container', clusterLabelPos: 'bottom', style: 'fill: #ff7272'});
+			g.setParent('nm2', 'worker2');
+			g.setParent('cnt2', 'worker2');
+			g.setParent('cnt21', 'worker2');
+			
+			// Set up edges
+      g.setEdge('client0', 'rm', {style: 'stroke-dasharray: 7; fill: none;'});
+      g.setEdge('client1', 'rm', {style: 'stroke-dasharray: 7; fill: none;'});
+ 
+      g.setEdge('nm0', 'rm', 
+          {style: "stroke: #0fffd0; stroke-width: 2px; stroke-dasharray: 5, 10, 5; fill: none;",
+          arrowheadStyle: "fill: #0fffd0"});
+      g.setEdge('cnt0', 'am1');
+      g.setEdge('am0', 'rm', {style: 'stroke-dasharray: 3; fill: none;'});
+
+      g.setEdge('nm1', 'rm',
+          {style: "stroke: #0fffd0; stroke-width: 2px; stroke-dasharray: 5, 10, 5; fill: none;",
+          arrowheadStyle: "fill: #0fffd0"});
+      g.setEdge('cnt1', 'am0');
+      g.setEdge('am1', 'rm', {style: 'stroke-dasharray: 3; fill: none;'});
+      
+      g.setEdge('nm2', 'rm',
+          {style: "stroke: #0fffd0; stroke-width: 2px; stroke-dasharray: 5, 10, 5; fill: none;",
+          arrowheadStyle: "fill: #0fffd0"});
+      g.setEdge('cnt2', 'am1');
+      g.setEdge('cnt21', 'am1');
+
+
+			g.nodes().forEach(function(v) {
+			  var node = g.node(v);
+			  // Round the corners of the nodes
+			  node.rx = node.ry = 5;
+			});
+			
+			
+			// Create the renderer
+			var render = new dagreD3.render();
+			
+			// Set up an SVG group so that we can translate the final graph.
+			var svg = d3.select("svg"),
+			    svgGroup = svg.append("g");
+			
+			// Run the renderer. This is what draws the final graph.
+			render(d3.select("svg g"), g);
+			
+			// Center the graph
+			var xCenterOffset = (svg.attr("width") - g.graph().width) / 2;
+			svgGroup.attr("transform", "translate(" + xCenterOffset + ", 20)");
+			svg.attr("height", g.graph().height + 40); 
+    
+    </script>
+	</body>
+</html>
+
