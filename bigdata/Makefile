@@ -1,6 +1,6 @@
 PAGE_NAME = BigData
 
-GENERATED_FILES = Home.md $(PAGE_NAME).html $(PAGE_NAME).pdf
+GENERATED_FILES = Home.md $(PAGE_NAME).html #$(PAGE_NAME).pdf
 
 UTIL_PATH = "../util/"
 

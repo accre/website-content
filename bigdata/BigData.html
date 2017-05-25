@@ -1,94 +1,366 @@
-<ul>
-<li><a href="#getting-access-to-the-bigdata-cluster">Getting Access to the <code>bigdata</code> Cluster</a></li>
-</ul>
 <ol style="list-style-type: decimal">
-<li><a href="#interacting-with-the-cluster" style="font-size: medium;">Interacting with the Cluster</a></li>
-<li><a href="#the-hardware" style="font-size: medium;">The Hardware</a></li>
-<li><a href="#the-software" style="font-size: medium;">The Software</a>
+<li><a href="#using-the-big-data-cluster" style="font-size: medium;">Using the Big Data Cluster</a></li>
+<li><a href="#getting-access-to-the-bigdata-cluster" style="font-size: medium;">Getting Access to the <code>bigdata</code> Cluster</a></li>
+<li><a href="#overview-of-cloudera-services" style="font-size: medium;">Overview of Cloudera Services</a></li>
+<li><a href="#hadoop-command-line" style="font-size: medium;">Hadoop command line</a></li>
+<li><a href="#logging-on-to-the-cluster-via-hue" style="font-size: medium;">Logging on to the Cluster via Hue</a></li>
+<li><a href="#using-the-hdfs-file-browser" style="font-size: medium;">Using the HDFS file browser</a></li>
+<li><a href="#hosted-datasets" style="font-size: medium;">Hosted datasets</a></li>
+<li><a href="#building-an-application" style="font-size: medium;">Building an application</a></li>
+<li><a href="#wordcount-in-spark" style="font-size: medium;">Wordcount in Spark</a>
 <ol style="list-style-type: decimal">
-<li><a href="#the-software-1" style="font-size: medium;">The Software</a></li>
+<li><a href="#read-in-a-text-file-using-the-sparkcontext" style="font-size: medium;">Read in a text file using the SparkContext</a></li>
+<li><a href="#filter-lines-containing-spark" style="font-size: medium;">Filter lines containing Spark</a></li>
+<li><a href="#map-lines-from-string-to-arraystring" style="font-size: medium;">Map lines from String to Array[String]</a></li>
+<li><a href="#lets-split-each-line" style="font-size: medium;">Let's split each line</a></li>
+<li><a href="#counting-words-per-line" style="font-size: medium;">Counting words per line</a></li>
+<li><a href="#counting-words-per-line-1" style="font-size: medium;">Counting words per line</a></li>
+<li><a href="#counting-total-spark-occurrences-with-flatmap" style="font-size: medium;">Counting total &quot;Spark&quot; occurrences with <code>flatMap</code></a></li>
+<li><a href="#counting-occurrences-of-each-word" style="font-size: medium;">Counting occurrences of each word</a></li>
+<li><a href="#reduce" style="font-size: medium;">Reduce</a></li>
 </ol></li>
 </ol>
+<div id="using-the-big-data-cluster" class="section level1">
+<h1><span class="header-section-number">1</span> Using the Big Data Cluster</h1>
+<p>ACCRE currently has a development environment set up for Vanderbilt and VUMC researchers to access, and plan to build out a production environment over the next 2-3 years. The development environment, (aka <code>bigdata</code>) is running the Cloudera implementation of the Hadoop ecosystem.</p>
+</div>
 <div id="getting-access-to-the-bigdata-cluster" class="section level1">
-<h1><span class="header-section-number">1</span> Getting Access to the <code>bigdata</code> Cluster</h1>
+<h1><span class="header-section-number">2</span> Getting Access to the <code>bigdata</code> Cluster</h1>
 <p>The bigdata cluster is available for use by the Vanderbilt community. Users should <a href="http://www.accre.vanderbilt.edu/?page_id=367">contact ACCRE</a> to get access to the cluster.</p>
 </div>
-<div id="interacting-with-the-cluster" class="section level1">
-<h1><span class="header-section-number">2</span> Interacting with the Cluster</h1>
-<p>Approved Vanderbilt users will be able to connect to the hostname <code>bigdata.accre.vanderbilt.edu</code> with <code>ssh</code>. Users can submit jobs from the command line using the tools maintained by Cloudera (e.g. MapReduce, Spark, HBase, etc.).</p>
-<p>Cloudera provides the Hadoop User Experience (<a href="http://gethue.com/">Hue</a>) tool to coordinate constructing and executing jobs (not to mention browsing and managing HDFS data) through the interface <code>bigdata.accre.vanderbilt.edu:8888</code>.</p>
+<div id="overview-of-cloudera-services" class="section level1">
+<h1><span class="header-section-number">3</span> Overview of Cloudera Services</h1>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Service</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">YARN</td>
+<td align="left">Yet Another Resource Negotiator</td>
+</tr>
+<tr class="even">
+<td align="left">Oozie</td>
+<td align="left">Web app for scheduling Hadoop jobs</td>
+</tr>
+<tr class="odd">
+<td align="left">MapReduce 2</td>
+<td align="left">MapReduce jobs running on top of YARN</td>
+</tr>
+<tr class="even">
+<td align="left">Hue</td>
+<td align="left">User interface for constructing Jobs</td>
+</tr>
+<tr class="odd">
+<td align="left">Spark</td>
+<td align="left">MapReduce-like + cacheing</td>
+</tr>
+<tr class="even">
+<td align="left">Hive</td>
+<td align="left">ETL transformations expressed as SQL</td>
+</tr>
+<tr class="odd">
+<td align="left">Impala</td>
+<td align="left">Interactive SQL</td>
+</tr>
+<tr class="even">
+<td align="left">HBase</td>
+<td align="left">Random, realtime read/write access to distributed big data store</td>
+</tr>
+<tr class="odd">
+<td align="left">Pig</td>
+<td align="left">High-level language for expressing data analysis programs</td>
+</tr>
+<tr class="even">
+<td align="left">Solr</td>
+<td align="left">Text search engine supporting free form queries</td>
+</tr>
+</tbody>
+</table>
 </div>
-<div id="the-hardware" class="section level1">
-<h1><span class="header-section-number">3</span> The Hardware</h1>
-<p>The current bigdata cluster is a test cluster comprised of commercial hardware. To conform to Cloudera recommended configuration, three nodes are dedicated to the management of the cluster:</p>
-<ul>
-<li>abd740</li>
-<li>abd741</li>
-<li>abd742</li>
-</ul>
-<p>The computational <em>guts</em> of <code>bigdata</code> are the datanodes:</p>
-<ul>
-<li>abd743</li>
-<li>abd744</li>
-<li>abd745</li>
-<li>abd746</li>
-<li>abd747</li>
-<li>abd748</li>
-</ul>
-<p>where MapReduce jobs actually take place. Each of these nodes have one 250 GB drive reserved mainly for the OS and software, but for mounting the Hadoop Distributed File System (HDFS), each node has 2 x 4 TB hard disk drives.</p>
+<div id="hadoop-command-line" class="section level1">
+<h1><span class="header-section-number">4</span> Hadoop command line</h1>
+<p>To interact with the HDFS filesystem, use the <code>hadoop fs</code> command:</p>
+<pre><code>[arnoldjr@abd740 ~]$ hadoop fs -ls /
+Found 5 items
+drwxr-xr-x   - hdfs  supergroup          0 2017-04-19 13:47 /data
+drwxr-xr-x   - hbase hbase               0 2017-04-02 21:09 /hbase
+drwxrwxr-x   - solr  solr                0 2017-02-24 17:20 /solr
+drwxrwxrwx   - hdfs  supergroup          0 2017-05-06 00:26 /tmp
+drwxr-xr-x   - hdfs  supergroup          0 2017-02-17 12:14 /user
+[arnoldjr@abd740 ~]$ hadoop fs -ls /data
+Found 9 items
+-rw-r--r--   3 hdfs    supergroup       3359 2017-02-14 09:57 /data/Spark_README.md
+drwxr-xr-x   - hdfs    supergroup          0 2017-03-06 16:25 /data/babs
+drwxr-xr-x   - hdfs    supergroup          0 2017-03-06 11:52 /data/capitalbikeshare-data
+drwxr-xr-x   - hdfs    supergroup          0 2017-03-06 12:10 /data/citibike-tripdata
+drwxr-xr-x   - hdfs    supergroup          0 2017-02-14 21:10 /data/google-ngrams
+-rw-r--r--   3 hdfs    supergroup  274188932 2017-04-19 13:47 /data/hadoop-2.5.0-cdh5.2.0.tar.gz
+drwxr-xr-x   - hdfs    supergroup          0 2017-01-18 19:06 /data/nyc-tlc
+drwxr-xr-x   - hdfs    supergroup          0 2016-12-21 15:14 /data/stack-archives</code></pre>
 </div>
-<div id="the-software" class="section level1">
-<h1><span class="header-section-number">4</span> The Software</h1>
-<p>Cloudera Manager is deployed on the cluster to coordinate job submission, with the following services running on each node:</p>
+<div id="logging-on-to-the-cluster-via-hue" class="section level1">
+<h1><span class="header-section-number">5</span> Logging on to the Cluster via Hue</h1>
+<p>Once approved, users will be able to connect to <code>bigdata.accre.vanderbilt.edu</code> via <code>ssh</code>, but Cloudera Manager provides a WebUI to interact with the cluster called Hue. To access Hue, simply to <code>bigdata.accre.vanderbilt.edu:8888</code> in your web browser and enter your credentials.</p>
+</div>
+<div id="using-the-hdfs-file-browser" class="section level1">
+<h1><span class="header-section-number">6</span> Using the HDFS file browser</h1>
+<p>If you've used the web UIs for Dropbox, Google Drive, etc., then this step is a piece of cake. The File Browser is accessed from the dog-eared-piece-of-paper icon near the top right of the screen. In the file broswer, you're able to navigate the directory structure of HDFS and even view the contents of text files.</p>
 <ul>
-<li>abd740</li>
-<li>Cloudera Manager
-<ul>
-<li>Alert Publisher</li>
-<li>Event Server</li>
-<li>Host Monitor</li>
-<li>Service Monitor</li>
-</ul></li>
-<li>HBase Master</li>
-<li>Hive
-<ul>
-<li>Hiveserver2</li>
-<li>Hive Gateway</li>
-</ul></li>
-<li>Hue Server</li>
-<li>Oozie Server</li>
-<li>Spark Gateway</li>
-<li>YARN (MR2 Included)
-<ul>
-<li>Resource Manager</li>
-<li>Job History Server</li>
-</ul></li>
-<li>Zookeeper Server</li>
+<li><p>When a new user logs into Hue, Hue creates an HDFS directory for that user at <code>/user/&lt;vunetid&gt;</code> which becomes that user's home directory.</p></li>
+<li><p><em>Note that, by default, logging in to Hue creates a new user's home directory with read and execute permissions enabled for the world!</em></p></li>
+<li><p>Files can be uploaded to your directories using the drag-and-drop mechanism; however, the file size for transferring through the WebUI is capped at around 50GB, so other tools like <code>scp</code> or <code>rsync</code> are necessary for moving large files onto the cluster.</p></li>
 </ul>
+</div>
+<div id="hosted-datasets" class="section level1">
+<h1><span class="header-section-number">7</span> Hosted datasets</h1>
+<p>In addition to your own data, ACCRE hosts some publicly available datasets at <code>/data/</code>:</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Directory</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">babs</td>
+<td align="left">Bay Area bikeshare data</td>
+</tr>
+<tr class="even">
+<td align="left">capitalbikeshare data</td>
+<td align="left">DC area bikeshare data</td>
+</tr>
+<tr class="odd">
+<td align="left">citibike-tripdata</td>
+<td align="left">NYC bikeshare data</td>
+</tr>
+<tr class="even">
+<td align="left">google-ngrams</td>
+<td align="left">n-grams collected from Google Books</td>
+</tr>
+<tr class="odd">
+<td align="left">nyc-tlc</td>
+<td align="left">NYC taxi trip data</td>
+</tr>
+<tr class="even">
+<td align="left">stack-archives</td>
+<td align="left">historic posts from StackOverflow, et al.</td>
+</tr>
+</tbody>
+</table>
+<p>If you know of other datasets that may appeal to the Vanderbilt community at large, just let us know!</p>
+</div>
+<div id="building-an-application" class="section level1">
+<h1><span class="header-section-number">8</span> Building an application</h1>
+<p>Hue uses Oozie to compose workflows on the cluster, and to access it, you'll need to follow the tabs <code>Workflows -&gt; Editors -&gt; Workflows</code>.</p>
+<p>From here, click the <code>+ Create</code> button, and you'll arrive at the workflow composer screen. You can drag and drop an application into your workflow, for instance a Spark job. Here you can specify the jar file (which, conveniently, you can generate from our <a href="https://github.com/bigdata-vandy/spark-wordcount">GitHub repo</a>) and specify options and inputs.</p>
+<p>If you want to interactively select your input and output files each time you execute the job, you can use the special keywords <code>${input}</code> and <code>${output}</code>, which is a nice feature for generalizing your workflows.</p>
+</div>
+<div id="wordcount-in-spark" class="section level1">
+<h1><span class="header-section-number">9</span> Wordcount in Spark</h1>
+<p>Here, we present an example Spark application. This content is adapted slightly from the <a href="http://spark.apache.org/docs/latest/quick-start.html">Spark getting started guide</a>. Users can execute the same commands in the Spark REPL, which is launched by running in bash</p>
+<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="va">$SPARK_HOME</span><span class="ex">/bin/spark-shell</span></code></pre></div>
+<p>where the environment variable <code>$SPARK_HOME</code> points to an installation of Spark. This can be a local Spark installation, or on <code>bigdata</code>, users can type <code>spark-shell</code> for Spark 1.6.2 or <code>spark2-shell</code> for Spark 2.0.0.</p>
+<div id="read-in-a-text-file-using-the-sparkcontext" class="section level2">
+<h2><span class="header-section-number">9.1</span> Read in a text file using the SparkContext</h2>
+<ul>
+<li>The SparkContext <code>sc</code> is the entry point for Spark's data structures (provided automatically in the Spark REPL).<br />
+</li>
+<li>The value <code>textFile</code> becomes an RDD (Resilient Distributed Dataset)</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala"><span class="kw">val</span> textFile = sc.<span class="fu">textFile</span>(<span class="st">&quot;spark_read_me.txt&quot;</span>)</code></pre></div>
+<ul>
+<li>The RDD cannot be viewed directly in the REPL (in practice it will be distributed across many nodes!!). Thus, in order to view all the data, we have to gather the data at a single node using <code>collect</code>. A summary of RDD functions can be found <a href="http://spark.apache.org/docs/latest/programming-guide.html#rdd-operations">here</a>.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala">(textFile collect) foreach println</code></pre></div>
+<pre><code># Apache Spark
+
+Spark is a fast and general cluster computing system for Big Data. It provides
+high-level APIs in Scala, Java, Python, and R, and an optimized engine that
+supports general computation graphs for data analysis. It also supports a
+rich set of higher-level tools including Spark SQL for SQL and DataFrames,
+MLlib for machine learning, GraphX for graph processing,
+and Spark Streaming for stream processing.
+
+&lt;http://spark.apache.org/&gt;</code></pre>
+</div>
+<div id="filter-lines-containing-spark" class="section level2">
+<h2><span class="header-section-number">9.2</span> Filter lines containing Spark</h2>
+<ul>
+<li>The RDD (and Scala collections) support filtering</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala"><span class="kw">val</span> linesWithSpark = textFile.<span class="fu">filter</span>(line =&gt; line.<span class="fu">contains</span>(<span class="st">&quot;Spark&quot;</span>))
+(linesWithSpark collect) foreach println</code></pre></div>
+<pre><code># Apache Spark
+Spark is a fast and general cluster computing system for Big Data. It provides
+rich set of higher-level tools including Spark SQL for SQL and DataFrames,
+and Spark Streaming for stream processing.
+You can find the latest Spark documentation, including a programming
+## Building Spark
+Spark is built using [Apache Maven](http://maven.apache.org/).
+To build Spark and its example programs, run:
+[&quot;Building Spark&quot;](http://spark.apache.org/docs/latest/building-spark.html).
+The easiest way to start using Spark is through the Scala shell:
+Spark also comes with several sample programs in the `examples` directory.
+    ./bin/run-example SparkPi
+    MASTER=spark://host:7077 ./bin/run-example SparkPi
+Testing first requires [building Spark](#building-spark). Once Spark is built, tests
+Spark uses the Hadoop core library to talk to HDFS and other Hadoop-supported
+Hadoop, you must build Spark against the same version that your cluster runs.
+in the online documentation for an overview on how to configure Spark.</code></pre>
+</div>
+<div id="map-lines-from-string-to-arraystring" class="section level2">
+<h2><span class="header-section-number">9.3</span> Map lines from String to Array[String]</h2>
+<p>The RDD (and Scala collections) support mapping. For example:</p>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala"><span class="kw">val</span> foo = <span class="st">&quot;a line with Spark&quot;</span>
+foo.<span class="fu">split</span>(<span class="st">&quot; &quot;</span>) </code></pre></div>
+<pre><code>Array(a, line, with, Spark)</code></pre>
+<p>--</p>
+<p><em>Scala Bonus! The dot operator can be omitted in Scala, so that splitting operation can be written as</em>:</p>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala">foo <span class="fu">split</span> (<span class="st">&quot; &quot;</span>)</code></pre></div>
+<pre><code>Array(a, line, with, Spark)</code></pre>
+</div>
+<div id="lets-split-each-line" class="section level2">
+<h2><span class="header-section-number">9.4</span> Let's split each line</h2>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala"><span class="kw">val</span> arraysWithSpark = linesWithSpark.<span class="fu">map</span>(line =&gt; line <span class="fu">split</span>(<span class="st">&quot; &quot;</span>))
+<span class="kw">val</span> wordsPerLine = arraysWithSpark <span class="fu">map</span> (a =&gt; a.<span class="fu">size</span>)
+(wordsPerLine collect) foreach println</code></pre></div>
+<pre><code>3
+14
+12
+6
+10
+3
+6
+.
+.
+.</code></pre>
+</div>
+<div id="counting-words-per-line" class="section level2">
+<h2><span class="header-section-number">9.5</span> Counting words per line</h2>
+<ul>
+<li>Spark and Scala allow for chaining operations together. Thus, we can just write:</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala"><span class="kw">val</span> wordsPerLine = linesWithSpark.<span class="fu">map</span>(line =&gt; line <span class="fu">split</span>(<span class="st">&quot; &quot;</span>)).<span class="fu">map</span>(a =&gt; a.<span class="fu">size</span>)
+(wordsPerLine collect) foreach println</code></pre></div>
+<pre><code>3
+14
+12
+6
+10
+3
+6
+.
+.
+.</code></pre>
 <hr />
-<div id="the-software-1" class="section level2">
-<h2><span class="header-section-number">4.1</span> The Software</h2>
+</div>
+<div id="counting-words-per-line-1" class="section level2">
+<h2><span class="header-section-number">9.6</span> Counting words per line</h2>
 <ul>
-<li>abd741</li>
-<li>HDFS NameNode</li>
-<li>Hive
-<ul>
-<li>Hive Metastore Server</li>
-<li>Hive Gateway</li>
-</ul></li>
-<li>Spark Gateway</li>
-<li>YARN (MR2 Included) Resource Manager</li>
-<li><p>ZooKeeper Server</p></li>
-<li>abd742</li>
-<li>HDFS SecondaryNameNode</li>
-<li>Hive Gateway</li>
-<li>Impala
-<ul>
-<li>Impala StateStore</li>
-<li>Impala Catalog Server</li>
-</ul></li>
-<li>Spark Gateway</li>
-<li><p>ZooKeeper Server</p></li>
+<li>Equivalently:</li>
 </ul>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala"><span class="kw">val</span> wordsPerLine = linesWithSpark <span class="fu">map</span>(_ split <span class="st">&quot; &quot;</span>) <span class="fu">map</span>(_ size)
+(wordsPerLine collect) foreach println</code></pre></div>
+<pre><code>3
+14
+12
+6
+10
+3
+6
+.
+.
+.</code></pre>
+<p>Here, Scala is smart enough to understand that the underscore implies that the map function is taking a single argument, thus avoiding the need for the <code>foo =&gt; foo split(&quot; &quot;)</code> pattern.</p>
+<p><em>Scala Bonus! this pattern defines an anonymous function.</em></p>
+</div>
+<div id="counting-total-spark-occurrences-with-flatmap" class="section level2">
+<h2><span class="header-section-number">9.7</span> Counting total &quot;Spark&quot; occurrences with <code>flatMap</code></h2>
+<p>If we wanted to count total occurrence of <em>Spark</em> we could filter our <code>Array</code>s from the previous step to keep only those words that match <em>Spark</em>. Since we don't actually care about which line contains occurrences of <em>Spark</em> but rather how many <em>Spark</em>s are in our entire document, we can consider all the individual words at once. Spark provides a mechanism to do this called <code>flatMap</code>.</p>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala"><span class="kw">val</span> allSparkWords = linesWithSpark <span class="fu">flatMap</span> (line =&gt; line split <span class="st">&quot; &quot;</span>)
+(allSparkWords collect) foreach println</code></pre></div>
+<pre><code>#
+Apache
+Spark
+Spark
+is
+a
+fast
+and
+general
+cluster
+computing
+system
+for
+Big
+.
+.
+.</code></pre>
+<p>To get the Spark occurrences, simply filter:</p>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala"><span class="kw">val</span> allSparkWords = linesWithSpark <span class="fu">flatMap</span> (_ split <span class="st">&quot;</span><span class="ch">\\</span><span class="st">s+&quot;</span>) <span class="fu">filter</span> (_ == <span class="st">&quot;Spark&quot;</span>)
+(allSparkWords collect) foreach println</code></pre></div>
+<pre><code>Spark
+Spark
+Spark
+Spark
+Spark
+Spark
+Spark
+Spark
+  .
+  .
+  .</code></pre>
+<p><em>Scala Bonus! <code>&quot;\\s+&quot;</code> is a regex that matches one or more consecutive whitespace characters.</em></p>
+</div>
+<div id="counting-occurrences-of-each-word" class="section level2">
+<h2><span class="header-section-number">9.8</span> Counting occurrences of each word</h2>
+<ul>
+<li>The classic MapReduce example (as popularized by <a href="http://hadoop.apache.org/">Hadoop</a>)</li>
+<li>Split each line into words</li>
+<li>Map each word into a word value <em>pair</em>, or <code>Tuple</code>, e.g. <code>(the, 100)</code></li>
+<li>First element is the <em>key</em> which serves as identifier</li>
+<li>Second element is the <em>value</em> which signifies that each word has occurred one time.</li>
+</ul>
+<p>Since each word is not unique, we need to group them together and count the occurrences per group. When we perform an <em>action</em> on an RDD, all the pairs with identical keys are sent to the same node and then we can aggregate these together. This is precisely what the <code>reduceByKey</code> function does:</p>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala"><span class="kw">val</span> wordFrequencies = textFile <span class="fu">flatMap</span> (_ <span class="fu">split</span> (<span class="st">&quot;</span><span class="ch">\\</span><span class="st">s+&quot;</span>) <span class="fu">map</span> (word =&gt; (word, <span class="dv">1</span>))) <span class="fu">reduceByKey</span> (_ + _)
+(wordFrequencies take <span class="dv">20</span>) foreach println</code></pre></div>
+<pre><code>(package,1)
+(this,1)
+(Version&quot;](http://spark.apache.org/docs/latest/building-spark.html#specifying-the-hadoop-version),1)
+(Because,1)
+(Python,2)
+(cluster.,1)
+(its,1)
+.
+.
+.</code></pre>
+</div>
+<div id="reduce" class="section level2">
+<h2><span class="header-section-number">9.9</span> Reduce</h2>
+<p>The argument to <code>reduceByKey</code> is a function describing how to combine values (which must have the same type, otherwise see <code>aggregateByKey</code>). To print the output, we've usen the <code>take</code> function to take the first 20 results. We can also use the aptly named <code>takeOrdered</code> function:</p>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala">(wordFrequencies.<span class="fu">takeOrdered</span>(<span class="dv">50</span>)(Ordering[Int].<span class="fu">reverse</span>.<span class="fu">on</span>(_._<span class="dv">2</span>))) foreach println</code></pre></div>
+<pre><code>(,43)
+(the,21)
+(to,14)
+(Spark,13)
+(for,11)
+(and,10)
+(a,8)
+(##,8)
+(run,7)
+(is,6)
+(can,6)
+(on,5)
+(in,5)
+(of,5)
+(also,4)
+.
+.
+.</code></pre>
 </div>
 </div>
