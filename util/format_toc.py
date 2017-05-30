@@ -18,13 +18,11 @@ header_lines = takewhile(condition, lines)
 other_lines = dropwhile(condition, lines)
 format_str = '{style="font-size: medium;"}'
 
-# Wrap the TOC lines
-re_end_header = re.compile(r'-(\s+.*\(#.+\))(\n)')
-replace_str = r'1.\1{style="font-size: medium;"}\2'
-
 with open(args.path, 'w') as f:
-  new_line = re_end_header.sub(replace_str, ''.join(header_lines))
-
-  f.write(new_line)
+  # Wrap the TOC lines
+  for line in header_lines:
+    new_line = re.sub(r'-  ', "1. ", line)
+    new_line = re.sub(r'\)\n','){style="font-size: medium;"}\n', new_line)
+    f.write(new_line)
 
   f.write(''.join(other_lines))
