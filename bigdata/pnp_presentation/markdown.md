@@ -1,22 +1,19 @@
 class: center, middle
 
-# Using the Big Data Cluster
+# Introduction to Using Spark on the Big Data Cluster
 
 ---
 
-# Getting Access to the `bigdata` Cluster 
+# Getting Help
 
-The bigdata cluster is available for use by the Vanderbilt community.
-Users should [contact ACCRE](http://www.accre.vanderbilt.edu/?page_id=367) 
-to get access to the cluster. 
-
----
-
-class: center, middle
-
-# Hadoop
-
-![hadoop](../hadoop-logo.jpg)
+- Submit a ticket at 
+- Join the accre-forum Slack team!
+  - https://accre-forum.slack.com/signup
+  - Use your Vanderbilt email address to register
+  - Join the `#bigdata` channel to communicate and collaborate
+- Check out our GitHub organization at [github.com/bigdata-vandy](https://github.com/bigdata-vandy)
+- Check out our blog at [bigdata-vandy.github.io](https://bigdata-vandy.github.io/)
+- Schedule a meeting for your research group
 
 ---
 
@@ -35,28 +32,125 @@ class: center, middle
 ![periodic](../periodic_table_of_hadoop.png)
 
 
+---
+
+# How is Big Data different from HPC?
+
+Industry - jobs no longer compute bound 
+
+Who is a good candidate?
+
+
+---
+class: center, middle
+
+# Divergent Ecosystems
+
+![divergent-ecosystems](../divergent-ecosystems.png)
+
+Dan Reed, “Clouds, Big Data, and the Future of Computing,” CASC Fall 2015 Meeting, Washington, D.C.
+
 
 ---
 
-# How did we get to this point?
+# Test cluster 1.0
 
-Industry need
+Initial deployment for testing, prototyping, and benchmarking only, using recycled hardware
+
+- 3 management nodes
+  - HDFS primary and secondary name nodes, YARN resource manager, etc 8 CPU cores per node, 92 GB RAM
+- 6 data nodes
+  - HDFS data nodes
+  - 8 TB per node (48 TB total raw capacity; 16 TB usable) 8 CPU cores per node, 92 GB RAM
+  - Available for use this summer!
+Hardware purchase on the horizon, production environment will be deployed in Fall 2017
+Production environment will be tailored to the needs of Vanderbilt researchers
 
 ---
 
-# Hadoop command line
+# Test cluster 2.0 
 
-To interact with the HDFS filesystem, use the `hadoop fs` command:
+Initial deployment for testing, prototyping, and benchmarking only, using recycled hardware
+
+- 4 management nodes
+  - HDFS primary and secondary name nodes, YARN resource manager, etc 8 CPU cores per node, 92 GB RAM
+- 6 data nodes
+  - HDFS data nodes
+  - 8 TB per node (48 TB total raw capacity; 16 TB usable) 16 CPU cores per node, 512 GB RAM
+  - Available for use this fall!
+
+Production environment will be tailored to the needs of Vanderbilt researchers
+
+---
+
+# Anatomy of the ACCRE Big Data test cluster
+
+The brains:
+- 3 management nodes
+  * Cloudera Manager 
+  *  YARN (MR2 Included)
+  *  Spark (and Spark2)
+  *  HBase
+  *  Hive
+  *  Hue
+  *  Impala
+  *  Oozie
+  *  Zookeeper
+
+The brawn: 
+- 6 datanodes
+  - 250 GB drive reserved for the OS
+  - 2 x 4 TB hard disk drives for HDFS
+
+---
+
+# Overview of Cloudera Services
+
+| Service          | Description 
+|:-----------------|:------------
+| HDFS             | Hadoop FileSystem - replicated, partitioned data 
+| YARN             | Yet Another Resource Negotiator 
+| MapReduce 2      | MapReduce jobs running on top of YARN 
+| Spark            | MapReduce-like + cacheing 
+| Oozie            | Web app for scheduling Hadoop jobs 
+| Hue              | User interface for constructing Jobs 
+| Hive             | ETL transformations expressed as SQL
+| Impala           | Interactive SQL 
+| HBase            | Random, realtime read/write access to distributed big data store
+| Pig              | High-level language for expressing data analysis programs 
+| Solr             | Text search engine supporting free form queries 
+
+---
+
+# Technologies for this Presentation 
+
+| Service          | Function 
+|:-----------------|:------------
+| HDFS             | Store data in a distributed/replicated manner
+| YARN             | Schedule and run jobs, acquiring resources as necessary
+| MapReduce 2      | Transform and aggregate data in parallel
+| Spark            | Perform map-reduce with data persistence in memory + much, much more
+
+---
+
+# Interacting with HDFS  
+
+The HDFS filesystem uses Unix-like commands for 
+common operations, prefixed with the `hadoop fs` command, e.g.:
 
 ```
-[arnoldjr@abd740 ~]$ hadoop fs -ls /
+$ hadoop fs -ls /
 Found 5 items
 drwxr-xr-x   - hdfs  supergroup          0 2017-04-19 13:47 /data
 drwxr-xr-x   - hbase hbase               0 2017-04-02 21:09 /hbase
 drwxrwxr-x   - solr  solr                0 2017-02-24 17:20 /solr
 drwxrwxrwx   - hdfs  supergroup          0 2017-05-06 00:26 /tmp
 drwxr-xr-x   - hdfs  supergroup          0 2017-02-17 12:14 /user
-[arnoldjr@abd740 ~]$ hadoop fs -ls /data
+```
+--
+
+```
+$ hadoop fs -ls /data
 Found 9 items
 -rw-r--r--   3 hdfs    supergroup       3359 2017-02-14 09:57 /data/Spark_README.md
 drwxr-xr-x   - hdfs    supergroup          0 2017-03-06 16:25 /data/babs
@@ -70,107 +164,72 @@ drwxr-xr-x   - hdfs    supergroup          0 2016-12-21 15:14 /data/stack-archiv
 
 ---
 
-# Overview of Cloudera Services
+# HDFS
 
-| Service          | Description 
-|:-----------------|:------------
-| YARN             | Yet Another Resource Negotiator 
-| Oozie            | Web app for scheduling Hadoop jobs 
-| MapReduce 2      | MapReduce jobs running on top of YARN 
-| Hue              | User interface for constructing Jobs 
-| Spark            | MapReduce-like + cacheing 
-| Hive             | ETL transformations expressed as SQL
-| Impala           | Interactive SQL 
-| HBase            | Random, realtime read/write access to distributed big data store
-| Pig              | High-level language for expressing data analysis programs 
-| Solr             | Text search engine supporting free form queries 
+Arguments for the [`hadoop fs` command](https://hadoop.apache.org/docs/r2.7.1/hadoop-project-dist/hadoop-common/FileSystemShell.html#createSnapshot):
 
-
----
-
+|                 |                  |            |                  |            |
+|:----------------|:-----------------|:-----------|:-----------------|:-----------|:--------
+| `appendToFile`  | `count`          | `find`     | `mkdir`          | `rmr`      | `touchz`                
+| `cat`           | `cp`             | `get`      | `moveFromLocal`  | `setfacl`  | `truncate`            
+| `checksum`      | `createSnapshot` | `getfacl`  | `moveToLocal`    | `setfattr` | `usage`
+| `chgrp`         | `deleteSnapshot` | `getfattr` | `mv`             | `setrep`   |            
+| `chmod`         | `df`             | `getmerge` | `put`            | `stat`     |           
+| `chown`         | `du`             | `help`     | `renameSnapshot` | `tail`     |           
+| `copyFromLocal` | `dus`            | `ls`       | `rm`             | `test`     |             
+| `copyToLocal`   | `expunge`        | `lsr`      | `rmdir`          | `text`     |           
 
 ---
 
-# Logging on to the Cluster via Hue
+class: center, middle
 
-Once approved, users will be
-able to connect to `bigdata.accre.vanderbilt.edu` via `ssh`, but Cloudera 
-Manager provides a WebUI to interact with the cluster called Hue.
-To access Hue, simply to `bigdata.accre.vanderbilt.edu:8888` in your web browser
-and enter your credentials.
+# Apache Hadoop YARN
 
----
-
-# Using the HDFS file browser
+![apache-hadoop-yarn](../apache-hadoop-yarn.png)
 
 --
 
-If you've used the web UIs for Dropbox, Google Drive, etc., then this step
-is a piece of cake. The File Browser is accessed from the 
-dog-eared-piece-of-paper icon near the top right of the screen. In the file
-broswer, you're able to navigate the directory structure of HDFS and even
-view the contents of text files.
+*YARN effectively fills the same role as SLURM*
 
 ---
 
-## Using the HDFS file browser
+# What is Spark?
 
-- When a new user logs into Hue, Hue creates an HDFS directory for that user
-at `/user/<vunetid>` which becomes that user's home directory.
+> Apache Spark is a fast and general-purpose cluster computing system. 
+> It provides high-level APIs in Java, Scala, Python and R, 
+> and an optimized engine that supports general execution graphs. 
 
---
+![spark-family-tree](../spark-family-tree.svg)
 
-- *Note that, by default, logging in to Hue creates a new user's home directory
-with read and execute permissions enabled for the world!*
-
---
-
-- Files can be uploaded to your directories using the drag-and-drop mechanism; however, 
-the file size for transferring through the WebUI is capped at around 50GB, 
-so other tools like `scp` or `rsync` are necessary for moving large files
-onto the cluster.
+Spark can run in:
+- Standalone mode, e.g. [Spark on GPFS](https://bigdata-vandy.github.io/spark/slurm/2017/02/08/using-spark-with-gpfs.html)
+- on YARN
+- on Mesos
 
 ---
 
-## Using the HDFS file browser
+# How to execute Spark code
 
-In addition to your own data, ACCRE hosts some publicly available datasets
-at `/data/`:
+- Interactive jobs: Spark REPL, a command line tool to "Read Evaluate Print Loop" Spark/Scala code
+  - In general: `$SPARK_HOME/bin/spark-shell`
+  - On the cluster: `spark-shell` (v. 1.6.0) or `spark2-shell` (v. 2.0.0)
+- Batch jobs
+  - In general: `$SPARK_HOME/bin/spark-submit`
+  - On the cluster: `spark-submit` (v. 1.6.0) or `spark2-submit` (v. 2.0.0)
 
-|Directory             | Description
-|:-------------------- |:-----------
-|babs                  | Bay Area bikeshare data
-|capitalbikeshare data | DC area bikeshare data
-|citibike-tripdata     | NYC bikeshare data
-|google-ngrams         | n-grams collected from Google Books
-|nyc-tlc               | NYC taxi trip data
-|stack-archives        | historic posts from StackOverflow, et al.
-
-If you know of other datasets that may appeal to the Vanderbilt community at
-large, just let us know!
+On the `bigdata` cluster, YARN automatically distributes job. 
 
 ---
 
-# Building an application
+# Spark higher-level tools 
 
-Hue uses Oozie to compose workflows on the cluster, and to access it, you'll 
-need to follow the tabs `Workflows -> Editors -> Workflows`. 
+| Library         | Function
+|:----------------|:---------
+| Spark SQL       | SQL and structured data processing
+| MLlib           | machine learning
+| GraphX          | graph processing
+| Spark Streaming | real-time analysis of data streams
 
---
-
-From here, click
-the `+ Create` button, and you'll arrive at the workflow composer screen. You
-can drag and drop an application into your workflow, for instance a Spark job. 
-Here you can specify the jar file (which, conveniently, 
-you can generate from our 
-[GitHub repo](https://github.com/bigdata-vandy/spark-wordcount)) 
-and specify options and inputs.
-
---
-
-If you want to interactively select your input and output files each time you
-execute the job, you can use the special keywords `${input}` and `${output}`, which
-is a nice feature for generalizing your workflows.
 
 ---
 
@@ -178,14 +237,8 @@ is a nice feature for generalizing your workflows.
 
 This content is adapted slightly from the 
 [Spark getting started guide](http://spark.apache.org/docs/latest/quick-start.html). 
-Users can execute the same commands in the Spark REPL, which is launched by running in bash 
 
-```bash
-$SPARK_HOME/bin/spark-shell
-```
-where the environment variable `$SPARK_HOME` points to an installation of Spark.
-
-<iframe width="100%" height="250" 
+<iframe width="100%" height="450" 
 src="http://spark.apache.org/docs/latest/quick-start.html"></iframe>
 
 ---
@@ -198,6 +251,8 @@ src="http://spark.apache.org/docs/latest/quick-start.html"></iframe>
 ```scala
 val textFile = sc.textFile("spark_read_me.txt")
 ```
+
+- More about RDDs
 
 - The RDD cannot be viewed directly in the REPL (in practice it will be distributed across many nodes!!). 
 Thus, in order to view all the data, we have to gather the data at a single node using `collect`. 
@@ -253,7 +308,7 @@ val linesWithSpark = textFile.filter(line => line.contains("Spark"))
 
 ---
 
-## Map lines from String to Array[String]
+## Map lines from `String` to `Array[String]`
 The RDD (and Scala collections) support mapping. For example:
 
 
@@ -483,95 +538,50 @@ class: center, middle
 
 ---
 
-# Apache Hadoop YARN
+# Spark DataFrames
 
-<div class="mermaid">
-graph TB 
+- Analogous to data frames in R and Pandas
+- Can be automatically created from CSV, Parquet, JSON lines files
 
-    subgraph Master 
-				rm(Resource Manager)
-    end
-    style rm fill:#4ac,stroke:#333,stroke-width:4px;
+```
+val df: DataFrame = spark.read
+    .option("header", true)
+    .option("treatEmptyValuesAsNulls", true)
+    .option("inferSchema", true)
+    .csv(inputPaths: _*)
 
-		subgraph Worker
-				nm0(Node Manager) -. Node Status .-> rm
-    end
-
-    subgraph Worker
-				nm1(Node Manager) -. Node Status .-> rm
-    end
-		
-		subgraph Worker
-				nm2(Node Manager) -. Node Status .-> rm
-    end
-
-		cl0((Client)) == Job Submission ==> rm
-		cl1((Client)) == Job Submission ==> rm
-	
-    style cl0 fill:#e88,stroke:#333,stroke-width:4px;
-    style cl1 fill:#8ce,stroke:#333,stroke-width:4px;
-		
-</div>
+df.show()
+```
 
 ---
 
-# Apache Hadoop YARN
+# SQL queries on Spark DataFrames
 
-<div class="mermaid">
-graph TB 
-
-    subgraph abd740 
-				rm(Resource Manager)
-    end
-    style rm fill:#4ac,stroke:#333,stroke-width:4px;
-
-		subgraph Datanode
-				nm0(Node Manager) -.-> rm
-				apm0>App Master]
-        cnt0>Container]
-    end
-    style apm0 fill:#8ce;
-    style cnt0 fill:#e88;
-
-    subgraph Datanode
-				nm1(Node Manager) -.-> rm
-				cnt0>Container] --> apm1>App Master]
-				
-				cnt1>Container] --> apm0
-    end
-    style apm1 fill:#e88;
-    style cnt1 fill:#8ce;
-		
-		subgraph Datanode
-				nm2(Node Manager) -.-> rm
-				cnt2>Container] --> apm1
-				cnt3>Container] --> apm1
-    end
-    style cnt2 fill:#e88;
-    style cnt3 fill:#e88;
-
-		cl0((Client)) == Job Submission ==> rm
-		cl1((Client)) == Job Submission ==> rm
-	
-    style cl0 fill:#e88,stroke:#333,stroke-width:4px;
-    style cl1 fill:#8ce,stroke:#333,stroke-width:4px;
-		
-</div>
+df.select("pickup_longitude", "pickup_latitude",
+    "dropoff_longitude", "dropoff_latitude")
 
 ---
 
-# Conclusions
+# Resources
 
+- Blog
+- [GitHub: bigdata-vandy](https://github.com/bigdata-vandy)) 
+- Sumit a HelpDesk ticket
 
-- Many tools are available
+---
+
+# Pro Tips
+
+1. Read the docs!
 
 --
 
-- It's import to know which tool is best suited for each job
+1. Find example code!!
 
 --
 
-- Go Forth and Compute!
-
----
-
+1. Use a good IDE!!!
+  - type-checking
+  - syntax highlighting
+  - tab-completion
+  - suggestions: [IntelliJ IDEA CE](https://www.jetbrains.com/idea/download) and [PyCharm CE](https://www.jetbrains.com/pycharm/download)
