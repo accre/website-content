@@ -31,18 +31,25 @@ class: center, middle
 
 # How is Big Data different from HPC?
 
-| Traditional HPC 						     | Big Data 
-|:---------------------------------|:--------
-| Move the data to the code        | Move the code to the data
-| Centralized storage via GPFS     | Distributed storage via HDFS 
-| Emphasis on perfomant languages (C/C++, Fortran) | Emphasis on more abstract languages (Java, Scala, Python)
+| Traditional HPC 						         | Big Data 
+|:-------------------------------------|:--------
+| Move the data to the code            | Move the code to the data
+| Centralized storage via GPFS         | Distributed storage via HDFS 
+| Perfomant languages (C/C++, Fortran) | Abstract languages (Java, Scala, Python)
+| Imperative programming               | Functional programming 
 
 --
 
-Candidates for Big Data solutions:
+### Candidates for Big Data solutions:
+
 - Lots of data
+
 - Embarrasingly parallel data processing
+
 - Machine learning
+
+- Network analysis
+
 - Processing/analysis of streaming data 
 
 
@@ -71,7 +78,7 @@ Initial deployment for testing, prototyping, and benchmarking only, using recycl
 
 # BigData Production Environment - Available Fall 2017 
 
-Initial deployment for testing, prototyping, and benchmarking only, using recycled hardware
+Newly purchased hardware!!
 
 - 4 management nodes
   - 16 CPU cores, 128 GB RAM per node
@@ -80,7 +87,7 @@ Initial deployment for testing, prototyping, and benchmarking only, using recycl
 
 ---
 
-# Overview of Cloudera Services
+# BigData Cluster Management with Cloudera 
 
 Cloudera Manager is used to deploy, configure, and manage the bigdata cluster
 
@@ -88,7 +95,7 @@ Cloudera Manager is used to deploy, configure, and manage the bigdata cluster
 
 | Service          | Description 
 |:-----------------|:------------
-| HDFS             | Hadoop FileSystem - replicated, partitioned data 
+| HDFS             | Hadoop Distributed File System - replicated, partitioned data 
 | YARN             | Yet Another Resource Negotiator 
 | MapReduce 2      | MapReduce jobs running on top of YARN 
 | Spark            | MapReduce-like + cacheing 
@@ -124,15 +131,9 @@ Cloudera Manager is used to deploy, configure, and manage the bigdata cluster
 
 ---
 class: center, middle
-# HDFS
+# HDFS Magic
 
-![hadoop_fig1](hadoop_fig1.png)
-
----
-class: center, middle
-# HDFS
-
-![hadoop_fig2](hadoop_fig2.png)
+![hdfs-magic](hdfs-magic.png)
 
 ---
 
@@ -258,7 +259,7 @@ Spark can run in:
 - This content is adapted slightly from the [Spark getting started guide](https://spark.apache.org/docs/2.0.0-preview/quick-start.html). 
 
 <iframe width="100%" height="300" 
-src="http://spark.apache.org/docs/latest/quick-start.html"></iframe>
+src="https://spark.apache.org/docs/2.0.0-preview/quick-start.html"></iframe>
 
 ---
 
@@ -272,7 +273,7 @@ linesRDD: org.apache.spark.rdd.RDD[String] = spark_read_me.txt MapPartitionsRDD[
 ```
 --
 
-- The value `linesRDD` is an instance of an RDD (Resilient Distributed Dataset)
+- The value `linesRDD` is an instance of an `RDD` (Resilient Distributed Dataset)
 
 --
 
