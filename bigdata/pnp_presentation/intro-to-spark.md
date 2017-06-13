@@ -25,7 +25,7 @@ class: center, middle
 
 # The Hadoop Ecosystem
 
-![hadoop-ecosystem](../hadoop-ecosystem.png)
+![hadoop-ecosystem](https://github.com/accre/website-content/raw/master/bigdata/pnp_presentation/images/hadoop-ecosystem.png)
 
 ---
 
@@ -58,7 +58,7 @@ class: center, middle
 
 # Divergent Ecosystems
 
-![divergent-ecosystems](../divergent-ecosystems.png)
+![divergent-ecosystems](https://github.com/accre/website-content/raw/master/bigdata/pnp_presentation/images//divergent-ecosystems.png)
 
 Dan Reed, “Clouds, Big Data, and the Future of Computing,” CASC Fall 2015 Meeting, Washington, D.C.
 
@@ -133,7 +133,7 @@ Cloudera Manager is used to deploy, configure, and manage the bigdata cluster
 class: center, middle
 # HDFS Magic
 
-![hdfs-magic](hdfs-magic.png)
+![hdfs-magic](https://github.com/accre/website-content/raw/master/bigdata/pnp_presentation/images/hdfs-magic.png)
 
 ---
 
@@ -173,7 +173,7 @@ drwxr-xr-x   - hdfs    supergroup          0 2016-12-21 15:14 /data/stack-archiv
 
 # HDFS
 
-Common arguments for the [`hadoop fs` command](https://hadoop.apache.org/docs/r2.7.1/hadoop-project-dist/hadoop-common/FileSystemShell.html#createSnapshot):
+Common arguments for the [`hadoop fs` command](https://hadoop.apache.org/docs/r2.7.1/hadoop-project-dist/hadoop-common/FileSystemShell.html):
 
 | Argument        | Description                         
 |:----------------|:------------------------------------
@@ -202,7 +202,7 @@ hadoop fs -cat /user/fido/my-file | head -100
 	- resource management 
 	- job scheduling/monitoring 
 
-![apache-hadoop-yarn](../apache-hadoop-yarn.png)
+![apache-hadoop-yarn](https://github.com/accre/website-content/raw/master/bigdata/pnp_presentation/images/apache-hadoop-yarn.png)
 
 --
 
@@ -217,7 +217,7 @@ hadoop fs -cat /user/fido/my-file | head -100
 > It provides high-level APIs in Java, Scala, Python and R, 
 > and an optimized engine that supports general execution graphs. 
 
-![spark-family-tree](../spark-family-tree.svg)
+![spark-family-tree](./images/spark-family-tree.svg)
 
 Spark can run in:
 - Standalone mode, e.g. [Spark on GPFS](https://bigdata-vandy.github.io/spark/slurm/2017/02/08/using-spark-with-gpfs.html)
@@ -447,7 +447,7 @@ class: center, middle
 
 # Under the Hood of Map-Reduce
 
-![dagre](../dagre.svg)
+![dagre](./images/dagre.svg)
 
 ---
 
@@ -556,7 +556,7 @@ println(s"Coefficients: ${lrModel.coefficients} Intercept: ${lrModel.intercept}"
 
 [spark-sem-classify on GitHub](https://github.com/bigdata-vandy/spark-sem-classify)
 
-![sem-edx](../sem-edx.png)
+![sem-edx](https://github.com/accre/website-content/raw/master/bigdata/pnp_presentation/images/sem-edx.png)
 
 ---
 
@@ -622,7 +622,7 @@ val cvModel = cv.fit(trainData)
 
 - For example, calculate the most popular taxi pickup/dropoff location in NYC using PageRank
 
-![nyc-taxi](../nyc-taxi.png)
+![nyc-taxi](https://github.com/accre/website-content/raw/master/bigdata/pnp_presentation/images/nyc-taxi.png)
 
 ---
 
