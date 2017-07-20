@@ -1,13 +1,12 @@
-1.  [Using Lmod](#using-lmod){style="font-size: medium;"}
-    1.  [Searching for available
-        packages](#searching-for-available-packages){style="font-size: medium;"}
-    1.  [Searching for all installed
-        packages](#searching-for-all-installed-packages){style="font-size: medium;"}
-    1.  [Autocompletion](#autocompletion){style="font-size: medium;"}
-    1.  [Version precedence](#version-precedence){style="font-size: medium;"}
-    1.  [List loaded packages](#list-loaded-packages){style="font-size: medium;"}
-    1.  [Unloading specific packages](#unloading-specific-packages){style="font-size: medium;"}
-    1.  [Unloading all packages](#unloading-all-packages){style="font-size: medium;"}
+1.  [Searching for available
+    packages](#searching-for-available-packages){style="font-size: medium;"}
+1.  [Searching for all installed
+    packages](#searching-for-all-installed-packages){style="font-size: medium;"}
+1.  [Autocompletion](#autocompletion){style="font-size: medium;"}
+1.  [Version precedence](#version-precedence){style="font-size: medium;"}
+1.  [List loaded packages](#list-loaded-packages){style="font-size: medium;"}
+1.  [Unloading specific packages](#unloading-specific-packages){style="font-size: medium;"}
+1.  [Unloading all packages](#unloading-all-packages){style="font-size: medium;"}
 
 Lmod is a tool for managing software packages within a shared
 high-performance computing environment (e.g. the ACCRE cluster). If you
@@ -23,20 +22,18 @@ the ACCRE operating system is [upgraded to CentOS 7 in Summer and Fall
 2017](http://www.accre.vanderbilt.edu/?page_id=3327), only Lmod will be
 available in the new CentOS 7 environment.**
 
-# Using Lmod
+-   For instructions on basic Lmod usage, please start with the
+    excellent and concise [User Guide for
+    Lmod](http://lmod.readthedocs.io/en/latest/010_user.html).
 
-For instructions on basic Lmod usage, please start with the excellent
-and concise [User Guide for
-Lmod](http://lmod.readthedocs.io/en/latest/010_user.html).
+-   A detailed overview of using Lmod on the ACCRE cluster is also
+    available here: [Lmod Slide
+    Deck](wp-content/uploads/2017/05/from_setpkgs_to_lmod.pdf)
 
-A detailed overview of using Lmod on the ACCRE cluster is also available
-here: [Lmod Slide
-Deck](wp-content/uploads/2017/05/from_setpkgs_to_lmod.pdf)
+-   There are a handful of things you must get accustomed to when
+    transitioning from `setpkgs`/`pkginfo` to Lmod:
 
-There are a handful of things you must get accustomed to when
-transitioning from `setpkgs`/`pkginfo` to Lmod:
-
-## Searching for available packages
+# Searching for available packages
 
 When searching for available packages, Lmod will only show you those
 packages that were built with a lower-level dependency (most often a
@@ -93,7 +90,7 @@ Note that additional packages are now listed under the **Applications
 built with GCC 5.4.0-2.26** section, and can now be loaded with the
 `module load` command.
 
-## Searching for all installed packages
+# Searching for all installed packages
 
 Because not all packages are shown by default, you should familiarize
 yourself with the `module spider` and `module keyword` commands in order
@@ -249,20 +246,20 @@ The `module keyword` command ignores case and also supports regular
 expressions for filtering your searches (the same is true of the
 `module spider` command).
 
-## Autocompletion
+# Autocompletion
 
 Lmod supports tab autocompletion, so in order to load a package you can
 type `module load` followed by the first few letters of a package name
 and the &lt;tab&gt; key.
 
-## Version precedence
+# Version precedence
 
 In the event that multiple versions of a software package are available,
 the default version will be noted with a (D). If you exclude the version
 information (e.g. `module load GCC`), the default version (or the only
 version if only a single version exists) of the software will be loaded.
 
-## List loaded packages
+# List loaded packages
 
 Use `module list` to see what packages are currently loaded in your
 environment:
@@ -283,7 +280,7 @@ Notice that more packages than just the GCC module were loaded. This is
 not unusual, so if you care about the low-level dependencies of your
 program it's a good idea to run `module list` to check.
 
-## Unloading specific packages
+# Unloading specific packages
 
 Use `module unload` to remove a package from your environment. For
 example:
@@ -306,7 +303,7 @@ the package via `module unload`. However, Lmod will remove those
 dependencies if they cause conflicts in a subsequent `module load`
 command.
 
-## Unloading all packages
+# Unloading all packages
 
 Use `module purge` to remove all packages from your environment. For
 example:
