@@ -24,45 +24,227 @@ need. ACCRE administrators have hand-compiled multiple other versions of
 Python that are linked against highly optimized linear algebras like
 ATLAS and Intel's MKL, and therefore will in general yield better
 performance (faster execution time). To see a list of installed versions
-of Python on the cluster, use `pkginfo`
+of Python on the cluster, use 
+[Lmod's `spider` command](http://www.accre.vanderbilt.edu/?page_id=3358#searching-for-available-packages): 
 
 ``` {.outline}
-[bob@vmps14 ~]$ pkginfo | grep "^\s*python"
-python                Python (2.7.2)
-python2               Python (2.7.2)
-python2.7.4           Python (2.7.4)
-python2.7.8           Python (2.7.8)
-python2.7.8_intel14   Python (2.7.8, Intel-compiled + Intel MKL)
-python3               Python (3.2.2)
-python3.4.2           Python (3.4.2)
-python_xnat           python_xnat for NI research (2.7.3)
+[bob@vmps14 ~]$ ml spider -r '^Python' 
+------------------------------------------------------------------------------
+  Python:
+------------------------------------------------------------------------------
+    Description:
+      Python is a programming language that lets you work more quickly and int
+
+     Versions:
+        Python/2.7.12
+
+------------------------------------------------------------------------------
+  For detailed information about a specific "Python" module (including how to 
+  For example:
+
+     $ module spider Python/2.7.12
+------------------------------------------------------------------------------
 ```
 
-Multiple versions of Python 2 and Python 3 are available on the cluster.
-We encourage users to use the most recent versions of Python 2 (2.7.8)
-and Python 3 (3.4.2) installed. We also have a version of Python 2.7.8
-compiled with Intel compilers and linked against Intel's MKL library,
-which should yield better performance on our Intel processors. To load a
-particular version of Python, use `setpkgs`:
+Per Lmod's instructions, we can get more information about the installed Python version:
 
 ``` {.outline}
-[bob@vmps14 ~]$ setpkgs -a python3.4.2
+------------------------------------------------------------------------------
+  Python: Python/2.7.12
+------------------------------------------------------------------------------
+    Description:
+      Python is a programming language that lets you work more quickly and int
+
+
+    You will need to load all module(s) on any one of the lines below before t
+
+      GCC/5.4.0-2.26
+      Intel/2016.3.210-GCC-5.4.0-2.26
+ 
+    Help:
+      
+      Description
+      ===========
+      Python is a programming language that lets you work more quickly and int
+       more effectively.
+      
+      
+      More information
+      ================
+       - Homepage: http://python.org/
+      
+      
+      Included extensions
+      ===================
+      arff-2.1.0, bitstring-3.1.5, blist-1.3.6, cryptography-1.4, Cython-0.24,
+      dateutil-2.5.3, decorator-4.0.10, ecdsa-0.13, enum34-1.1.6, funcsigs-1.0
+      lockfile-0.12.2, mock-2.0.0, netaddr-0.7.18, netifaces-0.10.4, nose-1.3.
+      paramiko-2.0.1, paycheck-1.0.2, pbr-1.10.0, pip-8.1.2, pycrypto-2.6.1,
+      pyparsing-2.1.5, pytz-2016.4, setuptools-23.1.0, six-1.10.0, virtualenv-
+      
+```
+
+We have compiled Python 2.7.12 with both the GCC compiler and 
+with Intel compilers, linking against Intel's MKL library,
+which should yield better performance on our Intel processors. 
+Lmod tells us that we need to load either GCC or Intel as a dependency
+of Python, so let's do just that:
+
+``` {.outline}
+[bob@vmps14 ~]$ ml Intel/2016.3.210-GCC-5.4.0-2.26 
+[bob@vmps14 ~]$ ml Python/2.7.12  
 [bob@vmps14 ~]$ python --version
-Python 3.4.2
+Python 2.7.12
 [bob@vmps65 ~]$ which python
-/usr/local/python3/3.4.2/x86_64/gcc46/nonet/bin/python
+/opt/easybuild/software/Compiler/intel/2016.3.210-GCC-5.4.0-2.26/Python/2.7.12
 ```
 
-Two distributions of Anaconda, are also available on the cluster:
+In addition to Python, we have compiled the performant `numpy` library
+against GCC and MKL:
+``` {.outline}
+[bob@vmps12 ~]$ ml spider numpy/1.12.1-Python-2.7.12
+
+------------------------------------------------------------------------------
+  numpy: numpy/1.12.1-Python-2.7.12
+------------------------------------------------------------------------------
+    Description:
+      NumPy is the fundamental package for scientific computing with Python. I
+      other things: a powerful N-dimensional array object, sophisticated (broa
+      tools for integrating C/C++ and Fortran code, useful linear algebra, Fou
+      random number capabilities. Besides its obvious scientific uses, NumPy c
+      efficient multi-dimensional container of generic data. Arbitrary data-ty
+      This allows NumPy to seamlessly and speedily integrate with a wide varie
+
+
+    You will need to load all module(s) on any one of the lines below before t
+
+      GCC/5.4.0-2.26  OpenMPI/1.10.3
+      Intel/2016.3.210-GCC-5.4.0-2.26  IntelMPI/5.1.3.181
+ 
+    Help:
+      
+      Description
+      ===========
+      NumPy is the fundamental package for scientific computing with Python. I
+       a powerful N-dimensional array object, sophisticated (broadcasting) fun
+       code, useful linear algebra, Fourier transform, and random number capab
+       NumPy can also be used as an efficient multi-dimensional container of g
+       defined. This allows NumPy to seamlessly and speedily integrate with a 
+      
+      
+      More information
+      ================
+       - Homepage: http://www.numpy.org
+```
+
+as well as the `mpi4py` library:
 
 ``` {.outline}
-[bob@vmps14 ~]$ pkginfo | grep "conda"
-                     anaconda2   Anaconda2 Python (2.7.8)
-                     anaconda3   Anaconda3 Python (3.5.1)
+[bob@vmps12 ~]$ ml spider mpi4py/2.0.0-Python-2.7.12
+
+------------------------------------------------------------------------------
+  mpi4py: mpi4py/2.0.0-Python-2.7.12
+------------------------------------------------------------------------------
+    Description:
+      MPI for Python (mpi4py) provides bindings of the Message Passing Interfa
+      the Python programming language, allowing any Python program to exploit 
+
+
+    You will need to load all module(s) on any one of the lines below before t
+
+      GCC/5.4.0-2.26  OpenMPI/1.10.3
+      Intel/2016.3.210-GCC-5.4.0-2.26  IntelMPI/5.1.3.181
+ 
+    Help:
+      
+      Description
+      ===========
+      MPI for Python (mpi4py) provides bindings of the Message Passing Interfa
+       the Python programming language, allowing any Python program to exploit
+      
+      
+      More information
+      ================
+       - Homepage: https://bitbucket.org/mpi4py/mpi4py
 ```
 
+Examples using these libraries can be found in 
+[ACCRE's GitHub repository](https://github.com/accre/Python)
+
+
+When users need to use non-standard Python packages, one highly recommended option is to use
+[Anaconda](https://www.continuum.io/anaconda-overview). 
 Anaconda simplifies managing dependencies and will be discussed in
-Section 4.
+Section 4. Since Anaconda distributes packages as precompiled binaries, its expected that 
+using Python via Anaconda might not be as performant as using the Python/2.7.12, but the 
+advantages are chiefly reproducibility and encapsulation of code. 
+Two versions of Anaconda are installed on the cluster:
+
+``` {.outline}
+[bob@vmps12 ~]$ ml spider Anaconda
+
+------------------------------------------------------------------------------
+  Anaconda2: Anaconda2/4.3.1
+------------------------------------------------------------------------------
+    Description:
+      Anaconda is a freemium open source distribution of the Python programmin
+      large-scale data processing, predictive analytics and scientific computi
+      simplify package management and deployment. 
+
+
+    This module can be loaded directly: module load Anaconda2/4.3.1
+
+    Help:
+      
+      Description
+      ===========
+      Anaconda is a freemium open source distribution of the Python 
+      programming language for large-scale data processing, predictive analyti
+      scientific computing that aims to simplify package management and deploy
+      
+      
+      More information
+      ================
+       - Homepage: https://www.continuum.io/anaconda-overview
+      
+      
+
+
+------------------------------------------------------------------------------
+  Anaconda3: Anaconda3/4.3.1
+------------------------------------------------------------------------------
+    Description:
+      Anaconda is a freemium open source distribution of the Python programmin
+      large-scale data processing, predictive analytics and scientific computi
+      simplify package management and deployment. 
+
+
+    This module can be loaded directly: module load Anaconda3/4.3.1
+
+    Help:
+      
+      Description
+      ===========
+      Anaconda is a freemium open source distribution of the Python 
+      programming language for large-scale data processing, predictive analyti
+      scientific computing that aims to simplify package management and deploy
+      
+      
+      More information
+      ================
+       - Homepage: https://www.continuum.io/anaconda-overview
+```
+
+Anaconda provides its own Python distribution, as well as the `conda` command
+for creating and managing environments:
+
+``` {.outline}
+[bob@vmps12 ~]$ ml Anaconda3
+[bob@vmps12 ~]$ which python
+/opt/easybuild/software/Core/Anaconda3/4.3.1/bin/python
+[bob@vmps12 ~]$ which conda
+/opt/easybuild/software/Core/Anaconda3/4.3.1/bin/conda
+```
 
 # Checking Installed Packages
 
@@ -72,114 +254,34 @@ switching between different versions it is prudent to check the packages
 that are available. One way to do this is using `pip`:
 
 ``` {.outline}
-[jill@vmps14 ~]$ setpkgs -a python2.7.8
+[jill@vmps14 ~]$ ml GCC Python 
 [jill@vmps14 ~]$ pip freeze | sort
-alignlib-lite==0.2.3
-appdirs==1.4.0
-backports.ssl-match-hostname==3.4.0.2
-bcbio-gff==0.6.2
-BeautifulSoup==3.2.1
-beautifulsoup4==4.3.2
-biopython==1.65
-bokeh==0.7.1
-brewer2mpl==1.4.1
-bx-python==0.7.1
-certifi==14.5.14
-CGAT==0.2.3
-CGATReport==0.2
-click==3.3
-colorama==0.3.3
-Cython==0.21.2
-decorator==3.4.0
-deepTools==1.5.9.1
-docutils==0.12
-drmaa==0.7.6
-enum34==1.0.4
-ete2==2.2.1072
-Flask==0.10.1
-freetype-py==1.0
-future==0.14.3
-futures==2.2.0
-geojson==1.0.6
-geopy==1.8.1
-gevent==1.0.1
-gevent-websocket==0.9.3
-ggplot==0.6.5
-greenlet==0.4.5
-hgapi==1.7.2
-html5lib==0.999
-ipython==3.0.0
-isodate==0.5.1
-itsdangerous==0.24
-jdcal==1.0
-Jinja2==2.7.3
-lxml==3.4.2
-Mako==1.0.1
-Markdown==2.5.2
-MarkupSafe==0.23
-matplotlib==1.5.dev1
-matplotlib-venn==0.10
-mock==1.0.1
-more-itertools==2.2
-mpi4py==1.3.1
-mpld3==0.2
-MySQL-python==1.2.5
-natsort==3.5.6
-networkx==1.9.1
-nose==1.3.6
-numpy==1.9.1
-oncodriveclust==0.5.0
-Oncotator==1.5.1.0
-openpyxl==2.1.4
-pandas==0.15.2
-parse==1.4.1
-patsy==0.3.0
-pdb==0.1
-pep8==1.5.7
-psycopg2==2.5.4
-py==1.4.26
-pybedtools==0.6.9
-pycuda==2014.1
-Pygments==2.0.1
-pyparsing==2.0.3
-pysam==0.7.5
-pysqlite==2.6.3
-pystache==0.5.4
-pytest==2.7.0
-python-dateutil==2.4.2
-python-gnupg==0.3.7
-python-memcached==1.54
-pytools==2014.3.5
-pytz==2015.2
-PyVCF==0.6.7
-PyYAML==3.11
-pyzmq==14.4.1
-rdflib==4.1.2
-requests==2.5.1
-rpy2==2.4.4
-ruffus==2.5
-scikit-bio==0.2.3
-scikit-learn==0.15.2
-scimath==4.1.2
-scipy==0.14.1
-seaborn==0.4.dev0
-Shapely==1.5.6
-shove==0.5.6
-six==1.9.0
-SPARQLWrapper==1.6.4
-Sphinx==1.2.3
-sphinxcontrib-programoutput==0.8
-SQLAlchemy==0.9.8
-statsmodels==0.6.1
-stuf==0.9.4
-threadpool==1.2.7
-tornado==4.0.2
-traits==4.5.0
-weblogo==3.4
-web.py==0.37
-websocket==0.2.1
-Werkzeug==0.9.6
-xlwt==0.7.5
+bitstring==3.1.5
+blist==1.3.6
+cryptography==1.4
+Cython==0.24
+decorator==4.0.10
+ecdsa==0.13
+enum34==1.1.6
+funcsigs==1.0.2
+idna==2.5
+ipaddress==1.0.18
+liac-arff==2.1.0
+lockfile==0.12.2
+mock==2.0.0
+netaddr==0.7.18
+netifaces==0.10.4
+nose==1.3.7
+paramiko==2.0.1
+paycheck==1.0.2
+pbr==1.10.0
+pyasn1==0.2.3
+pycrypto==2.6.1
+pyparsing==2.1.5
+python-dateutil==2.5.3
+pytz==2016.4
+six==1.10.0
+Theano==0.9.0
 ```
 
 Using `pip` is convenient because it gives you package version
@@ -443,11 +545,11 @@ by other cluster users, you can [open a helpdesk
 ticket](http://www.accre.vanderbilt.edu/?page_id=369) and request that
 we install the package for cluster-wise access. The other option is to
 install the package yourself into your home directory. There are
-multiple ways to install Python packages (pip, easy\_install, from
+multiple ways to install Python packages (`pip`, `easy_install`, from
 source). Just make sure you have the appropriate version of Python (via
-***setpkgs -a***) in your environment when perform the installation. To
-install a package (e.g. a packaged called **word-count**) into your home
-directory with *pip*:
+`module load`) in your environment when perform the installation. To
+install a package (e.g. a packaged called `word-count`) into your home
+directory with `pip`:
 
 ``` {.outline}
 [jill@vmps14 ~]$ pip install word-count --user
@@ -469,20 +571,20 @@ page](http://www.accre.vanderbilt.edu/?page_id=47#python_module_install)
 for instructions on doing this. Note that it is generally better
 practice to use Anaconda virtual environments and install new packages
 into the virtual environment (see instructions below). This helps
-isolate packages and to specific projects and prevents complex
+isolate packages to specific projects and prevents complex
 dependency problems when, for example, you need a different version of a
 package for two different projects.
 
 # Example Scripts
 
-<span style="font-size: 13px; line-height: 1.5;"> Running a Python
+Running a Python
 script within a SLURM job is generally straightforward. Unless you are
 attempting to run one of Python's multi-processing packages, you will
 want to request a single task, load the appropriate version of Python
 from your SLURM script, and then redirect your Python file to the Python
-interpreter. The following example runs Python 2.7.8 on a simple Python
+interpreter. The following example runs Python 2.7.12 on a simple Python
 script demonstrating the utility of writing vectorized Python
-code:</span>
+code:
 
 ``` {.outline}
 [bob@vmps14 run1]$ ls
@@ -490,17 +592,19 @@ python.slurm  vectorization.py
 ```
 
 ``` {.outline}
-[bob@vmps14 run1]$ cat python.slurm 
+[bob@vmps12 vectorization]$ cat python.slurm 
 #!/bin/bash
+
 #SBATCH --nodes=1
+#SBATCH --constraint=haswell
 #SBATCH --ntasks=1
 #SBATCH --time=00:10:00
 #SBATCH --mem=500M
 #SBATCH --output=python_job_slurm.out
 
-setpkgs -a python2.7.8
+module load Intel IntelMPI Python numpy
 
-python < vectorization.py
+python vectorization.py
 ```
 
 ``` {.outline}
@@ -535,21 +639,21 @@ if ( np.array_equal(x1,x2) ):
 ```
 
 ``` {.outline}
-[bob@vmps14 run1]$ sbatch python.slurm 
+[bob@vmps14 vectorization]$ sbatch python.slurm 
 Submitted batch job 1832675
 ```
 
 After waiting a few minutes:
 
 ``` {.outline}
-[bob@vmps14 run1]$ ls
-python_job_slurm.out  python.slurm  vectorization.py
+[bob@vmps14 vectorization]$ ls
+python_job_slurm.out  python.slurm  README.md  vectorization.py
 ```
 
 ``` {.outline}
-[bob@vmps14 run1]$ cat python_job_slurm.out 
-naive implementation: 23.35 seconds elapsed
-vectorized implementation: 0.68 seconds elapsed
+[bob@vmps12 vectorization]$ cat python_job_slurm.out 
+naive implementation: 11.45 seconds elapsed
+vectorized implementation: 0.15 seconds elapsed
 arrays equal!
 ```
 
@@ -560,17 +664,19 @@ arrays equal!
 Anaconda, simply type
 
 ``` {.outline}
-[bob@vmps14 ~] setpkgs -a anaconda3
+[bob@vmps14 ~] ml Anaconda2
 ```
 
 or
 
 ``` {.outline}
-[bob@vmps14 ~] setpkgs -a anaconda3
+[bob@vmps14 ~] ml Anaconda3
 ```
 
-(Note that both versions of Anaconda support installing any available
-Python version.) Anaconda encapsulates packages into virtual
+*Both versions of Anaconda support installing any available
+Python version.* 
+
+Anaconda encapsulates packages into virtual
 environments; in this way, packages between different projects do not
 conflict with one another. To create a virtual environment running
 Python version 3.4:
@@ -690,7 +796,7 @@ as well the package it depends on, mkl version 11.3.3. To use
 Anaconda package and then activate the environment in the *.slurm* file:
 
 ``` {.outline}
-setpkgs -a anaconda3
+ml Anaconda3 
 source activate myenvironment
 ```
 
@@ -711,11 +817,13 @@ following:
 
 ``` {.outline}
 #!/bin/bash
+
 #SBATCH --ntasks=1
 #SBATCH --mem=2G
 #SBATCH --time=0-04:00:00      # 4 hours
 #SBATCH --output=notebook.out
-setpkgs -a anaconda3
+
+module load Anaconda3
 jupyter notebook --no-browser --ip='*' --port=7777
 ```
 
@@ -725,7 +833,7 @@ must be passed to the jupyter interpreter. Make sure you include these
 same options in your SLURM script. If you want to launch multiple
 notebooks from the same compute node, you would need to use a
 different port (try incrementing by one). Use
-*[squeue](http://www.accre.vanderbilt.edu/?page_id=2154#squeue)* to
+*[`squeue`](http://www.accre.vanderbilt.edu/?page_id=2154#squeue)* to
 monitor when your job has started. Once it has started, write down the
 name of the node where it is running and open `notebook.out` to see
 the password for this notebook; it should look something like
@@ -733,7 +841,7 @@ the password for this notebook; it should look something like
 ```
     Copy/paste this URL into your browser when you connect for the first time,
             to login with a token:
-                    http://localhost:9999/?token=0gt123481a68b53a92490c64a1712f0e2af696ebe2db
+                    http://localhost:9999/?token=0gt123481a68b53a92490c64a1712
 ```
 
 Open a Linux terminal/shell on
@@ -744,9 +852,9 @@ command:
 ssh -L 9999:vmp506:7777 vunetid@login.accre.vanderbilt.edu
 ```
 
-Be sure to replace vmp506 with the name of the node where your job is
-running, and *vunetid* with your VUNetID. This command binds port 9999
-on localhost (i.e. your local machine) to port 7777 on vmp506. Finally,
+Be sure to replace `vmp506` with the name of the node where your job is
+running, and `vunetid` with your VUNetID. This command binds port 9999
+on `localhost` (i.e. your local machine) to port 7777 on `vmp506`. Finally,
 point a web browser on your local machine to `localhost:9999` (enter
 this where you would normally put a URL address), and you should get a
 Jupyter notebook login screen. Enter the token from above, and you'll
@@ -754,7 +862,7 @@ launch a session in your web browser, where processing within
 the notebook will take place on the compute node. This ssh session must
 remain active in order for you to continue accessing the notebook from
 your local machine. You might consider adding these lines to your
-\~/.ssh/config file to ensure your ssh session does not time out:
+`~/.ssh/config` file to ensure your ssh session does not time out:
 
 ``` {.outline}
 ServerAliveInterval 60
