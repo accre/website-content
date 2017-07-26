@@ -55,6 +55,7 @@
 <li><p><a href="#checkpoint">How do I checkpoint my job?</a></p></li>
 <li><p><a href="#localstorage">How do I use local storage on a node?</a></p></li>
 <li><p><a href="#sockettimeout">My job submission fails with a socket timeout message. What's the problem?</a></p></li>
+<li><p><a href="#corefiles">Why do files named &quot;core.*&quot; appear after I submit a job?</a></p></li>
 </ul>
 </div>
 <div id="disk-space" class="section level4">
@@ -366,6 +367,12 @@ error: Batch job submission failed: Socket timed out on send/recv operation</cod
 <li>avoid submitting a large number (&gt;100) of short jobs (&lt; 30 minutes). Job</li>
 </ol>
 <p>arrays reduce the load on the scheduler because SLURM only attempts to schedule the entire array once, rather than every element within the array independently. Short jobs produce more &quot;churn&quot; within the job scheduler as it works to allocate, de-allocate, and re-allocate resources at a rapid pace. If you are running a lot of short jobs, please try to bundle multiple jobs together into a single job to put less stress on the scheduler. The socket timeout error message is generally intermittent, so if you wait a few minutes and try your SLURM command again it may complete immediately.</p>
+<p><a href="#top">Top of Page</a></p>
+<hr />
+</div>
+<div id="why-do-files-named-core.-appear-after-i-submit-a-job-corefiles" class="section level6">
+<h6>Why do files named &quot;core.*&quot; appear after I submit a job? {#corefiles}</h6>
+<p>Core files are created by the operating system when a process terminates abnormally and they contain the content of the memory at the moment of the crash. They are very useful for a post-mortem analysis for debugging purposes.</p>
 <p><a href="#top">Top of Page</a></p>
 <hr />
 </div>

@@ -98,6 +98,8 @@ Started](/?page_id=303 "Getting Started")):
 -   [My job submission fails with a socket timeout message. What's the
     problem?](#sockettimeout)
 
+-   [Why do files named "core.*" appear after I submit a job?](#corefiles)
+
 #### Disk Space:
 
 -   [How can I determine my disk space quota and how much disk
